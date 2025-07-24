@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Ortografía: Ay, Ahí y Hay</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Un color de fondo suave */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .option-button {
+            background-color: #e2f0ff;
+            color: #1a202c;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            border: 2px solid transparent;
+            text-align: left;
+        }
+        .option-button:hover:not(.selected):not(.correct):not(.incorrect):not(:disabled) {
+            background-color: #cce0ff;
+            transform: translateY(-2px);
+        }
+        .option-button.selected {
+            background-color: #93c5fd; /* Blue-300 */
+            border-color: #3b82f6; /* Blue-500 */
+            color: #1e40af; /* Blue-800 */
+        }
+        .option-button.correct {
+            background-color: #d1fae5; /* Green-100 */
+            border-color: #34d399; /* Green-400 */
+            color: #065f46; /* Green-800 */
+        }
+        .option-button.incorrect {
+            background-color: #fee2e2; /* Red-100 */
+            border-color: #ef4444; /* Red-500 */
+            color: #991b1b; /* Red-800 */
+        }
+        .option-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .navigation-button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .navigation-button:hover {
+            background-color: #2563eb;
+        }
+        .navigation-button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .level-button {
+            background-color: #cbd5e1;
+            color: #4b5563;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .level-button:hover {
+            background-color: #94a3b8;
+        }
+        .level-button.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        /* Custom Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+        }
+        .modal-close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: #aaa;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .modal-close-button:hover,
+        .modal-close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-4 leading-tight">
+            Test de Ortografía: Ay, Ahí y Hay
+        </h1>
+        <p class="text-md text-gray-600 mb-6">
+            Mejora tu dominio de estas palabras clave.
+        </p>
+
+        <!-- Level Selection -->
+        <div id="level-selection" class="flex justify-center gap-4 mb-8">
+            <button class="level-button active" data-level="basic">Nivel Básico</button>
+            <button class="level-button" data-level="intermediate">Nivel Intermedio</button>
+            <button class="level-button" data-level="advanced">Nivel Avanzado</button>
+        </div>
+
+        <!-- Test Area -->
+        <div id="test-area" class="hidden">
+            <p id="question-counter" class="text-sm text-gray-500 mb-4"></p>
+            <p id="current-question" class="text-2xl font-semibold text-gray-900 mb-6"></p>
+
+            <div id="options-container" class="grid grid-cols-1 gap-4 mb-6">
+                <!-- Options will be loaded here by JavaScript -->
+            </div>
+
+            <div id="feedback-message" class="text-lg font-bold mt-4 mb-2" style="min-height: 1.5em;"></div>
+            <div id="explanation-message" class="text-md text-gray-700 mt-2 mb-4"></div>
+
+
+            <div class="flex justify-between gap-4">
+                <button id="prev-button" class="navigation-button">Anterior</button>
+                <button id="next-button" class="navigation-button">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Results Area -->
+        <div id="results-area" class="hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Resultados del Test</h2>
+            <p id="score-display" class="text-2xl text-gray-700 mb-6"></p>
+            <button id="restart-button" class="navigation-button bg-blue-600 hover:bg-blue-700">Reiniciar Test</button>
+        </div>
+    </div>
+
+    <!-- Custom Modal for messages -->
+    <div id="custom-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-button" id="modal-close">&times;</span>
+            <p id="modal-message" class="text-lg text-gray-800"></p>
+            <button id="modal-ok-button" class="navigation-button mt-6">OK</button>
+        </div>
+    </div>
+
+    <script>
+        (function() { // IIFE starts here to create a new scope
+            // Custom Modal Logic
+            const customModal = document.getElementById('custom-modal');
+            const modalMessage = document.getElementById('modal-message');
+            const modalCloseBtn = document.getElementById('modal-close');
+            const modalOkBtn = document.getElementById('modal-ok-button');
+
+            function showModal(message) {
+                modalMessage.textContent = message;
+                customModal.style.display = 'flex';
+            }
+
+            function hideModal() {
+                customModal.style.display = 'none';
+            }
+
+            modalCloseBtn.onclick = hideModal;
+            modalOkBtn.onclick = hideModal;
+            window.onclick = function(event) {
+                if (event.target == customModal) {
+                    hideModal();
+                }
+            };
+
+            // Hardcoded questions with their correct answers
+            const allQuestions = {
+                basic: [
+                    { question: "¡_____! Qué susto me diste.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "Pon el vaso _____, en la mesa.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "En el parque _____ niños jugando.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "No _____ ningún problema con eso.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "Deja tu paraguas _____, en el paragüero.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "¡_____! Me he golpeado el dedo.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "_____ que levantarse temprano mañana.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "Tu abrigo está _____, en el sillón.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "_____ mucha comida en la nevera.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "¡_____! Qué sorpresa más bonita.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "_____ que cruzar la calle con cuidado.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "La pelota está _____, debajo de la cama.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "¡_____! Qué pena que no pudieras venir.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "En el pueblo _____ una iglesia antigua.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "Dejé las llaves _____, junto a la puerta.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "¡_____! Me duele la cabeza.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "_____ que ir al supermercado.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "Tu móvil está _____, sobre el escritorio.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "_____ bastante ruido en la calle.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "¡_____! Qué alivio escucharte.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "_____ que regar las plantas.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "El cine está por _____, a la vuelta de la esquina.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "¡_____! Qué mala suerte.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "En la frutería _____ manzanas y peras.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "Deja el coche _____ un momento.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "¡_____! Se me ha olvidado la cartera.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "_____ que ser puntual.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "El perro duerme siempre _____, en su cama.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "_____ muchos pájaros en el jardín.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "¡_____! Qué vergüenza he pasado.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "_____ que tener paciencia.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "La estación de tren está _____, al final de la avenida.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "¡_____! Qué risa me da.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "En la ciudad _____ muchos edificios altos.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "Pásame el mando que está _____. ", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "¡_____! Qué buena idea.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "_____ que hacer la cama.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "Tu mochila está _____, junto a la puerta.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "_____ sol hoy.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "¡_____! Me pica el brazo.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "_____ que leer este libro.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "La ventana está _____, abierta.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "¡_____! Se me cayó el vaso.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "_____ una araña en la pared.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "El supermercado está _____, cruzando la plaza.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "¡_____! Qué bonito está el paisaje.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" },
+                    { question: "_____ que cuidar el planeta.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "Mi gato siempre se acuesta _____, en mi regazo.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ahí" },
+                    { question: "_____ poca gente hoy.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "¡_____! Qué mal día he tenido.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Ay" }
+                ],
+                intermediate: [
+                    { question: "Sentí un _____ de alivio al saber que todo había salido bien.", options: ["ay", "ahí", "hay"], correctAnswer: "ay" },
+                    { question: "La clave de su argumento radica _____, en su lógica impecable.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "Para dominar un idioma, _____ que sumergirse en su cultura.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "¡_____! Qué dilema tan complejo se nos presenta ahora.", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "El punto de inflexión de la historia fue justo _____, en el momento más crítico.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "No _____ motivos para dudar de su sinceridad.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "_____ que ser optimista a pesar de las adversidades.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "El cuadro más valioso del museo se exhibe _____, en la sala principal.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "En el mundo actual, _____ una creciente preocupación por el medio ambiente.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "Los _____ del moribundo se escuchaban en el silencio de la noche.", options: ["ayes", "ahíes", "hayes"], correctAnswer: "ayes" },
+                    { question: "_____ que fomentar el pensamiento crítico en los jóvenes.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "La solución a la ecuación se encuentra _____, tras varias operaciones.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "¡_____! Qué injusto es a veces el destino.", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "En la ciudad _____ una gran diversidad cultural.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "El error más común se produce _____, al interpretar los datos.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "¡_____! Si supieras lo que me costó lograrlo.", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "_____ que aprender de los errores pasados para mejorar.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "La verdadera belleza del paisaje se aprecia desde _____, en la cima de la colina.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "Siempre _____ un camino cuando la voluntad es fuerte.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "Sentía un _____ en el alma al recordar sus palabras.", options: ["ay", "ahí", "hay"], correctAnswer: "ay" },
+                    { question: "_____ que adaptarse a los cambios para progresar.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "El mapa indica que el tesoro está escondido justo _____. ", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "¡_____! Cuánta paciencia se necesita para este trabajo.", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "En el discurso del político _____ un mensaje oculto.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "El documento relevante para el caso se halla _____, en el archivo histórico.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "¡_____! Qué ironía que suceda justo cuando menos lo esperas.", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "_____ que valorar el esfuerzo de los demás.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "La esencia de su teoría reside _____, en esa premisa fundamental.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "No _____ ninguna duda de su honestidad.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "Los _____ de los manifestantes se hicieron oír con fuerza.", options: ["ayes", "ahíes", "hayes"], correctAnswer: "ayes" },
+                    { question: "_____ que ser responsable con nuestras acciones.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "El punto exacto de la colisión fue justo _____. ", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "¡_____! Qué gran alivio me has dado.", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "En la novela _____ varios personajes complejos.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "La clave para la victoria estuvo _____, en la estrategia final.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "¡_____! Me ha dolido en el alma lo que dijiste.", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "_____ que ser solidario con los que lo necesitan.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "Puedes dejar tu equipaje _____, en la consigna.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "_____ una gran demanda de profesionales en este sector.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "¡_____! Qué pena que la fiesta se haya terminado tan pronto.", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "_____ que fomentar el respeto mutuo en la sociedad.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "La belleza del cuadro se encuentra _____, en los detalles ocultos.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "No _____ mejor momento para empezar que ahora mismo.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "Los _____ de la naturaleza se escuchan en el murmullo del viento.", options: ["ayes", "ahíes", "hayes"], correctAnswer: "ayes" },
+                    { question: "_____ que afrontar la realidad, por dura que sea.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "La verdad siempre emerge, incluso si se esconde _____. ", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "¡_____! Me has dejado sin palabras con tu talento.", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "En las entrañas de la tierra _____ tesoros aún por descubrir.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "Fue justo _____, en ese instante, cuando supo qué hacer.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "_____ que ser constante para ver resultados a largo plazo.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" }
+                ],
+                advanced: [
+                    { question: "En la ontología de Heidegger, _____ un profundo análisis sobre el ser y la existencia del Dasein.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "La epifanía del protagonista se produce precisamente _____, en el umbral entre la conciencia y el subconsciente.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "¡_____ de aquel que subestima el poder de las masas, pues en su ignorancia reside su propia condena!", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "Para trascender las limitaciones del pensamiento lineal, _____ que abrazar la complejidad inherente a los sistemas caóticos.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "El historiador señaló el documento antiguo y afirmó: 'Es _____ donde se halla la prueba irrefutable de la conspiración'.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "Los _____ de la naturaleza, violada por la mano del hombre, claman por un respiro en cada desastre ecológico.", options: ["ahíes", "ayes", "hayes"], correctAnswer: "ayes" },
+                    { question: "No _____ una verdad absoluta en el relativismo posmoderno, sino múltiples narrativas interconectadas y subjetivas.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "La sabiduría ancestral se transmitía oralmente, y _____ residía su fuerza, su pureza y también su vulnerabilidad.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "En el lienzo de la vida, los trazos del destino se configuran _____, en las decisiones cruciales que tomamos.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "¡_____ , efímera gloria, que te desvaneces como el rocío matinal ante el sol ardiente de la realidad ineludible!", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "Para descolonizar el pensamiento, _____ que liberarse de los prejuicios epistemológicos impuestos por hegemonías culturales.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "El epicentro de la rebelión social se gestó _____, en las plazas y mercados donde el pueblo clamaba por justicia.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "_____ quienes postulan que la conciencia es una propiedad emergente de la complejidad neuronal, mientras otros defienden su naturaleza fundamental.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "La singularidad de su estilo literario se despliega _____, en la sutileza de sus metáforas y la cadencia de su prosa.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "¡_____ del corazón que se cierra al amor, pues en su aislamiento emocional encontrará su propia desdicha y vacío!", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "En la dialéctica filosófica, siempre _____ una tesis y una antítesis, buscando la síntesis que eleve el conocimiento.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "La complejidad del algoritmo estriba _____, en su capacidad para procesar ingentes cantidades de datos en tiempo real.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "La neurociencia explora cómo _____ una correlación intrínseca entre las estructuras cerebrales y los procesos mentales complejos.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "La literatura gótica abunda en _____ y lamentos que intensifican la atmósfera de misterio y terror psicológico.", options: ["ayes", "ahíes", "hayes"], correctAnswer: "ayes" },
+                    { question: "Es en la intersección de culturas donde la verdadera riqueza humana se manifiesta, y _____ yace la promesa de la diversidad.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "Para reevaluar nuestros paradigmas, _____ que adaptarse a un mundo en constante transformación y a nuevas evidencias.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "La teoría de cuerdas sugiere que _____ dimensiones adicionales ocultas más allá de nuestra percepción tridimensional.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "El pintor capturó la esencia del paisaje, y fue _____ donde su pincelada, saturada de emoción, se volvió mágica.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "En el teatro del absurdo, _____ una crítica velada a la falta de sentido de la existencia moderna y la condición humana.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "¡_____ , cuán complejos son los designios del destino, que entrelazan alegrías y tristezas en una misma urdimbre fatal!", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "La verdadera resiliencia no se demuestra en la bonanza, sino _____, en la capacidad de levantarse tras cada caída inevitable.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "_____ quienes sostienen que la música es el lenguaje universal del alma, capaz de expresar lo inefable y lo trascendente.", options: ["Ay", "Ahí", "Hay"], correctAnswer: "Hay" },
+                    { question: "Si analizamos el trasfondo psicológico del personaje, comprenderemos que su conflicto interno se gesta _____. ", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "¡_____ de los que confían ciegamente en las apariencias, pues la realidad a menudo es un velo engañoso y traicionero!", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "La paradoja filosófica reside _____, en la eterna disyuntiva entre el libre albedrío y el determinismo ineludible.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "En las profundidades del cosmos, _____ aún misterios que desafían la comprensión humana y la física conocida.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "La vanguardia artística rompe con las convenciones, y es _____ donde reside su carácter transgresor y revolucionario.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "El coro dramático entonaba _____ que simbolizaban la tragedia ineludible del héroe trágico.", options: ["ayes", "ahíes", "hayes"], correctAnswer: "ayes" },
+                    { question: "Para construir un futuro equitativo, _____ que confrontar las sombras de nuestro pasado colectivo y sus legados.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "La trama de la novela alcanza su clímax _____, en ese diálogo final que desvela todos los misterios ocultos.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "¡_____ , cuánto se anhela el sosiego en un mundo sumido en el estruendo y la prisa incesante!", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "No _____ necesidad de justificar cada acción si se actúa con la conciencia tranquila y la ética.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "En los recovecos de la memoria, aún resuenan los _____ de una infancia marcada por la adversidad.", options: ["ayes", "ahíes", "hayes"], correctAnswer: "ayes" },
+                    { question: "El dilema ético se concentra _____, en la delgada línea que separa la investigación científica de la moralidad.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "A pesar de los avances tecnológicos, _____ aún abismos de pobreza y desigualdad que reclaman nuestra urgente atención.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "¡_____ del tirano que cree eterno su poder, pues la rueda del tiempo inexorablemente gira y lo derroca!", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "La belleza de la simetría matemática se revela _____, en la intrincada relación entre formas y números abstractos.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "En toda teoría científica, _____ un punto donde la especulación cede ante la evidencia empírica, marcando un límite.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "La nave espacial llegó a su destino, y fue _____ donde la tripulación descubrió nuevas formas de vida exóticas.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "¡_____ , qué paradoja que la búsqueda de la felicidad a menudo nos conduzca a un abismo de insatisfacción perpetua!", options: ["Ahí", "Hay", "Ay"], correctAnswer: "Ay" },
+                    { question: "En la prosa de Borges, _____ un laberinto de referencias intertextuales que invitan al lector a una exploración erudita.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" },
+                    { question: "Los _____ de las antiguas profecías aún se ciernen sobre el futuro incierto de la humanidad, como una sombra.", options: ["ayes", "ahíes", "hayes"], correctAnswer: "ayes" },
+                    { question: "El cuadro, en su sombría paleta, parecía emitir silenciosos _____ de un sufrimiento ancestral e inexpresable.", options: ["ayes", "ahíes", "hayes"], correctAnswer: "ayes" },
+                    { question: "El camino se bifurcaba y, justo _____, en la encrucijada, comprendió que cada elección traería consecuencias irrevocables.", options: ["ay", "ahí", "hay"], correctAnswer: "ahí" },
+                    { question: "Siempre _____ un resquicio de esperanza, incluso en los escenarios más desoladores, si sabemos dónde buscarlo.", options: ["ay", "ahí", "hay"], correctAnswer: "hay" }
+                ]
+            };
+            // This will store the shuffled questions for the current level
+            let shuffledQuestions = [];
+            let currentLevel = 'basic';
+            let currentQuestionIndex = 0;
+            let score = 0;
+            // Stores user's selected answer for each question in the *shuffled* array: { 'shuffledIndex': 'selectedOptionText' }
+            let userAnswers = {};
+
+            // DOM elements
+            const questionCounterElem = document.getElementById('question-counter');
+            const currentQuestionElem = document.getElementById('current-question');
+            const optionsContainer = document.getElementById('options-container');
+            const feedbackMessageElem = document.getElementById('feedback-message');
+            const explanationMessageElem = document.getElementById('explanation-message'); // New element for explanation
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            const levelButtons = document.querySelectorAll('.level-button');
+            const testArea = document.getElementById('test-area');
+            const levelSelection = document.getElementById('level-selection');
+            const resultsArea = document.getElementById('results-area');
+            const scoreDisplay = document.getElementById('score-display');
+            const restartButton = document.getElementById('restart-button');
+
+            // Explanations for each correct word
+            const explanations = {
+                "Ay": "Es una interjección que expresa dolor, sorpresa, pena o cualquier emoción intensa.",
+                "Ahí": "Es un adverbio de lugar, que indica 'en ese lugar' o 'en ese sitio'.",
+                "Hay": "Es una forma impersonal del verbo 'haber', que indica existencia ('hay manzanas') o necesidad ('hay que estudiar').",
+                "ayes": "Es el sustantivo plural de 'ay', refiriéndose a quejas, lamentos o gemidos."
+                // 'ahíes' y 'hayes' no tienen explicaciones ya que se consideran opciones incorrectas en este contexto.
+            };
+
+            /**
+             * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
+             * @param {Array} array The array to shuffle.
+             */
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+                }
+            }
+
+            /**
+             * Loads and displays the current question based on currentLevel and currentQuestionIndex.
+             */
+            function loadQuestion() {
+                const questions = shuffledQuestions; // Use the shuffled array
+                if (questions.length === 0) {
+                    currentQuestionElem.textContent = "No hay preguntas para este nivel.";
+                    optionsContainer.innerHTML = '';
+                    prevButton.disabled = true;
+                    nextButton.disabled = true;
+                    feedbackMessageElem.textContent = '';
+                    explanationMessageElem.textContent = ''; // Clear explanation
+                    return;
+                }
+
+                const questionData = questions[currentQuestionIndex];
+                questionCounterElem.textContent = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+                currentQuestionElem.textContent = questionData.question;
+                optionsContainer.innerHTML = '';
+                feedbackMessageElem.textContent = '';
+                explanationMessageElem.textContent = ''; // Clear explanation
+
+                // Create option buttons
+                questionData.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('option-button');
+                    button.dataset.option = option;
+                    button.onclick = () => selectOption(option);
+                    optionsContainer.appendChild(button);
+                });
+
+                // Restore previous selection if any for the current shuffled question
+                const userAnswer = userAnswers[currentQuestionIndex];
+                if (userAnswer) {
+                    const selectedButton = optionsContainer.querySelector(`[data-option="${userAnswer}"]`);
+                    if (selectedButton) {
+                        selectedButton.classList.add('selected');
+                    }
+                    // If already checked, re-apply feedback and explanation
+                    if (userAnswers[`${currentQuestionIndex}_checked`]) {
+                        checkAnswer(true); // Re-apply feedback without re-checking
+                        // Disable buttons if already answered
+                        optionsContainer.querySelectorAll('.option-button').forEach(btn => btn.disabled = true);
+                    }
+                }
+
+                updateNavigationButtons();
+            }
+
+            /**
+             * Handles the selection of an option by the user.
+             * @param {string} selectedOption The text of the selected option.
+             */
+            function selectOption(selectedOption) {
+                // Disable all options once one is selected
+                optionsContainer.querySelectorAll('.option-button').forEach(button => {
+                    button.disabled = true;
+                    button.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const selectedButton = optionsContainer.querySelector(`[data-option="${selectedOption}"]`);
+                if (selectedButton) {
+                    selectedButton.classList.add('selected');
+                }
+                userAnswers[currentQuestionIndex] = selectedOption; // Store answer by shuffled index
+                userAnswers[`${currentQuestionIndex}_checked`] = true; // Mark question as checked immediately
+
+                // Automatically check the answer
+                checkAnswer();
+            }
+
+            /**
+             * Checks the user's selected answer against the correct answer.
+             * @param {boolean} isReload True if called during a question reload, false otherwise.
+             */
+            function checkAnswer(isReload = false) {
+                const questionData = shuffledQuestions[currentQuestionIndex];
+                const userAnswer = userAnswers[currentQuestionIndex];
+
+                const buttons = optionsContainer.querySelectorAll('.option-button');
+                buttons.forEach(button => {
+                    button.classList.remove('selected', 'correct', 'incorrect');
+                    if (button.dataset.option === questionData.correctAnswer) {
+                        button.classList.add('correct');
+                    } else if (button.dataset.option === userAnswer) {
+                        button.classList.add('incorrect');
+                    }
+                });
+
+                if (userAnswer === questionData.correctAnswer) {
+                    feedbackMessageElem.textContent = "¡Correcto!";
+                    feedbackMessageElem.classList.remove('text-red-600');
+                    feedbackMessageElem.classList.add('text-green-600');
+                    if (!isReload && !userAnswers[`${currentQuestionIndex}_counted`]) {
+                        score++;
+                        userAnswers[`${currentQuestionIndex}_counted`] = true;
+                    }
+                } else {
+                    feedbackMessageElem.textContent = "Incorrecto.";
+                    feedbackMessageElem.classList.remove('text-green-600');
+                    feedbackMessageElem.classList.add('text-red-600');
+                    // If it was previously correct and now marked incorrect (shouldn't happen with single check per question)
+                    if (!isReload && userAnswers[`${currentQuestionIndex}_counted`]) {
+                        score--;
+                        userAnswers[`${currentQuestionIndex}_counted`] = false;
+                    }
+                }
+
+                // Display explanation
+                const correctWord = questionData.correctAnswer;
+                explanationMessageElem.textContent = explanations[correctWord] || "No hay una explicación específica disponible para esta palabra.";
+            }
+
+            /**
+             * Updates the disabled state of navigation buttons.
+             */
+            function updateNavigationButtons() {
+                prevButton.disabled = currentQuestionIndex === 0;
+                nextButton.disabled = currentQuestionIndex === shuffledQuestions.length - 1;
+            }
+
+            // Event Listeners for navigation
+            prevButton.addEventListener('click', () => {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    loadQuestion();
+                }
+            });
+
+            nextButton.addEventListener('click', () => {
+                if (currentQuestionIndex < shuffledQuestions.length - 1) {
+                    currentQuestionIndex++;
+                    loadQuestion();
+                } else {
+                    // End of test for current level
+                    showResults();
+                }
+            });
+
+            // Event Listeners for level selection
+            levelButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    levelButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    currentLevel = button.dataset.level;
+                    resetTest(); // Reset and shuffle for the new level
+                });
+            });
+
+            /**
+             * Displays the test results.
+             */
+            function showResults() {
+                testArea.classList.add('hidden');
+                levelSelection.classList.add('hidden');
+                resultsArea.classList.remove('hidden');
+                scoreDisplay.textContent = `Has obtenido ${score} de ${shuffledQuestions.length} puntos.`;
+            }
+
+            /**
+             * Resets the test for the current level, shuffles questions, and loads the first one.
+             */
+            function resetTest() {
+                currentQuestionIndex = 0;
+                score = 0;
+                userAnswers = {}; // Clear all answers for the new shuffled sequence
+
+                // Create a copy of the questions for the current level and shuffle it
+                shuffledQuestions = [...allQuestions[currentLevel]];
+                shuffleArray(shuffledQuestions);
+
+                testArea.classList.remove('hidden');
+                levelSelection.classList.remove('hidden');
+                resultsArea.classList.add('hidden');
+                loadQuestion();
+            }
+
+            restartButton.addEventListener('click', resetTest);
+
+            // Initial load of the test when the window loads
+            window.onload = resetTest;
+        })(); // IIFE ends here
+    </script>
+</body>
+</html>
