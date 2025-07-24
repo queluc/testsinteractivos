@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Ortografía: Ay, Ahí, Hay</title>
+    <!-- Carga de Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para la fuente Inter y el fondo del cuerpo */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e2e8f0; /* Fondo azul-gris claro más suave */
+        }
+        /* Estilos para los botones de opción cuando están deshabilitados */
+        .option-button:disabled {
+            cursor: not-allowed;
+            /* Mantener el color de fondo que se le haya aplicado (correcto/seleccionado)
+               pero reducir su opacidad para indicar que está deshabilitado */
+            opacity: 0.7;
+        }
+        /* Estilo para la opción seleccionada (elección del usuario cuando es incorrecta) */
+        .option-selected {
+            background-color: #fb923c; /* Un naranja más oscuro para el fondo */
+            color: white; /* Texto blanco para contraste */
+            border-color: #f97316; /* Borde naranja más oscuro */
+            box-shadow: 0 0 0 3px #fdbb74; /* Anillo naranja más grueso */
+        }
+
+        /* Estilos para el título animado */
+        .quiz-title-word {
+            display: inline-block;
+            transition: transform 0.3s ease-out, color 0.3s ease-out;
+        }
+        .quiz-title-word:hover {
+            transform: translateY(-5px) scale(1.05);
+            color: #f97316; /* Naranja al pasar el ratón */
+        }
+
+        /* Nuevos estilos para el resaltado de la OPCIÓN CORRECTA según el nivel (COLORES MÁS FUERTES) */
+        /* Importante: Usar !important para asegurar que estos estilos prevalezcan sobre los predeterminados de Tailwind */
+        .option-correct-basico {
+            background-color: #3b82f6 !important; /* blue-500 */
+            border-color: #2563eb !important; /* blue-700 */
+            color: #eff6ff !important; /* blue-50 for text for strong contrast */
+        }
+        .option-correct-intermedio {
+            background-color: #10b981 !important; /* green-500 */
+            border-color: #059669 !important; /* green-700 */
+            color: #ecfdf5 !important; /* green-50 for text */
+        }
+        .option-correct-avanzado {
+            background-color: #8b5cf6 !important; /* purple-500 */
+            border-color: #7c3aed !important; /* purple-700 */
+            color: #f5f3ff !important; /* purple-50 for text */
+        }
+
+        /* Estilos para las opciones de respuesta: más grandes y en negrita */
+        .option-button {
+            font-size: 1.25rem !important; /* Aumenta el tamaño de la fuente (text-xl en Tailwind) */
+            font-weight: bold !important; /* Pone el texto en negrita */
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <!-- Contenedor principal del quiz -->
+    <div id="quiz-container" class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full mx-auto space-y-8">
+        <!-- Sección de selección de nivel (siempre visible) -->
+        <div id="level-selection-header" class="text-center space-y-4 mb-6">
+            <h1 class="text-4xl font-extrabold text-gray-800 text-center mb-6">
+                <span class="quiz-title-word text-blue-600">Ay</span>,
+                <span class="quiz-title-word text-green-600">Ahí</span> y
+                <span class="quiz-title-word text-purple-600">Hay</span>
+            </h1>
+            <p class="text-gray-600 text-lg">Selecciona un nivel para empezar:</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button class="level-button bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out" data-level="basico">Básico</button>
+                <button class="level-button bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out" data-level="intermedio">Intermedio</button>
+                <button class="level-button bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out" data-level="avanzado">Avanzado</button>
+            </div>
+        </div>
+
+        <!-- Sección del Quiz -->
+        <div id="quiz-section" class="space-y-6">
+            <h2 id="quiz-level-title" class="text-2xl font-semibold text-gray-700 text-center"></h2>
+            <div id="quiz-content-area" class="bg-gray-50 p-6 rounded-xl shadow-md border border-gray-100 min-h-[300px] flex flex-col justify-between">
+                <!-- Contenido dinámico: pregunta, opciones, feedback -->
+                <div id="welcome-message" class="text-center text-gray-700 text-lg mt-8">
+                    <p class="mb-4 text-xl font-semibold">¡Bienvenido al desafío de ortografía!</p>
+                    <p class="mb-4">"Ay", "Ahí" y "Hay" son pequeñas palabras con grandes diferencias.</p>
+                    <p>¿Estás listo para dominarlas y escribir sin errores? ¡Elige tu nivel y demuestra lo que sabes!</p>
+                </div>
+                <div id="question-area" class="hidden">
+                    <p id="question-number" class="text-sm text-gray-500 mb-2"></p>
+                    <p id="question-text" class="text-xl font-medium text-gray-800 mb-4"></p>
+                    <div id="options-container" class="space-y-3">
+                        <!-- Las opciones se inyectarán aquí mediante JavaScript -->
+                    </div>
+                    <!-- Contenedor de retroalimentación (inicialmente oculto) -->
+                    <div id="feedback-container" class="mt-4 p-3 rounded-lg text-sm hidden">
+                        <p id="feedback-text" class="font-semibold"></p>
+                        <p id="explanation-text" class="mt-1 text-gray-700"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de navegación y Reiniciar Nivel -->
+            <div class="flex justify-between items-center mt-6">
+                <button id="prev-button" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-5 rounded-lg shadow-md transition duration-300 ease-in-out opacity-50 cursor-not-allowed" disabled>Anterior</button>
+                <button id="restart-level-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-5 rounded-lg shadow-md transition duration-300 ease-in-out hidden">Reiniciar Nivel</button>
+                <button id="next-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow-md transition duration-300 ease-in-out opacity-50 cursor-not-allowed" disabled>Siguiente</button>
+            </div>
+
+            <!-- Sección de Guía Rápida (reubicada y con botón de alternancia) -->
+            <div class="mt-8">
+                <button id="toggle-guide-button" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out">
+                    Guía Rápida <span id="guide-arrow">▼</span>
+                </button>
+                <div id="quick-guide-content" class="hidden mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-gray-700 shadow-inner">
+                    <h3 class="font-bold text-base mb-2">Uso de 'Ay', 'Ahí' y 'Hay'</h3>
+                    <ul class="list-disc list-inside space-y-1 text-left mx-auto max-w-xs">
+                        <li><strong class="text-red-600">Ay:</strong> Interjección que expresa dolor, sorpresa, pena, etc. (¡Ay, qué dolor!)</li>
+                        <li><strong class="text-blue-600">Ahí:</strong> Adverbio de lugar que indica una posición. (Ponlo ahí.)</li>
+                        <li><strong class="text-green-600">Hay:</strong> Del verbo 'haber', indica existencia o necesidad. (Hay pan. Hay que ir.)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Puntuación (inicialmente oculto) -->
+        <div id="score-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center space-y-6">
+                <h3 class="text-3xl font-bold text-gray-800">¡Quiz Terminado!</h3>
+                <p class="text-gray-600 text-lg">Tu puntuación final es:</p>
+                <p id="final-score" class="text-5xl font-extrabold text-blue-600"></p>
+                <button id="restart-full-quiz-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition duration-300 ease-in-out">Reiniciar Quiz Completo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos del quiz
+        const quizData = {
+            "basico": [
+                { "question": "¡______! Qué susto me diste.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay es una interjección para expresar sorpresa o susto." },
+                { "question": "Pon el vaso ______, en la mesa.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí es un adverbio de lugar que indica una posición específica." },
+                { "question": "En el parque ______ niños jugando.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay (del verbo haber) indica existencia." },
+                { "question": "No ______ ningún problema con eso.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay (del verbo haber) indica existencia o la necesidad de algo." },
+                { "question": "Deja tu paraguas ______, en el paragüero.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí se refiere a un lugar." },
+                { "question": "¡______! Me he golpeado el dedo.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay es una interjección para expresar dolor." },
+                { "question": "______ que levantarse temprano mañana.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que indica obligación o necesidad." },
+                { "question": "Tu abrigo está ______, en el sillón.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí indica el lugar donde se encuentra el abrigo." },
+                { "question": "______ mucha comida en la nevera.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay (del verbo haber) indica existencia de algo." },
+                { "question": "¡______! Qué sorpresa más bonita.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay se usa para expresar una emoción intensa, como sorpresa." },
+                { "question": "______ que cruzar la calle con cuidado.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que indica una obligación." },
+                { "question": "La pelota está ______, debajo de la cama.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí indica la ubicación de la pelota." },
+                { "question": "¡______! Qué pena que no pudieras venir.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay expresa lamento o pena." },
+                { "question": "En el pueblo ______ una iglesia antigua.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay (del verbo haber) indica la existencia de la iglesia." },
+                { "question": "Dejé las llaves ______, junto a la puerta.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí se refiere al lugar donde se dejaron las llaves." },
+                { "question": "¡______! Me duele la cabeza.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay es una interjección de dolor." },
+                { "question": "______ que ir al supermercado.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una necesidad o deber." },
+                { "question": "Tu móvil está ______, sobre el escritorio.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí indica la ubicación del móvil." },
+                { "question": "______ bastante ruido en la calle.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay (del verbo haber) indica la existencia de ruido." },
+                { "question": "¡______! Qué alivio escucharte.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay expresa alivio o consuelo." },
+                { "question": "______ que regar las plantas.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que indica una tarea o necesidad." },
+                { "question": "El cine está por ______, a la vuelta de la esquina.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí indica una dirección o lugar." },
+                { "question": "¡______! Qué mala suerte.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay expresa frustración o mala suerte." },
+                { "question": "En la frutería ______ manzanas y peras.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay (del verbo haber) indica la existencia de frutas." },
+                { "question": "Deja el coche ______ un momento.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí se refiere a un lugar cercano." },
+                { "question": "¡______! Se me ha olvidado la cartera.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay expresa un olvido o contratiempo." },
+                { "question": "______ que ser puntual.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que indica una obligación." },
+                { "question": "El perro duerme siempre ______, en su cama.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí indica el lugar habitual del perro." },
+                { "question": "______ muchos pájaros en el jardín.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay (del verbo haber) indica la existencia de pájaros." },
+                { "question": "¡______! Qué vergüenza he pasado.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay expresa vergüenza o bochorno." },
+                { "question": "______ que tener paciencia.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que indica una cualidad necesaria." },
+                { "question": "La estación de tren está ______, al final de la avenida.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí indica la ubicación de la estación." },
+                { "question": "¡______! Qué risa me da.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay expresa diversión o risa." },
+                { "question": "En la ciudad ______ muchos edificios altos.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay (del verbo haber) indica la existencia de edificios." },
+                { "question": "Pásame el mando que está ______. ", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí se refiere a la ubicación del mando." },
+                { "question": "¡______! Qué buena idea.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay expresa aprobación o una buena idea." },
+                { "question": "______ que hacer la cama.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que indica una tarea." },
+                { "question": "Tu mochila está ______, junto a la puerta.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí indica la ubicación de la mochila." },
+                { "question": "______ sol hoy.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay (del verbo haber) indica la existencia de sol (fenómeno meteorológico)." },
+                { "question": "¡______! Me pica el brazo.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay expresa una sensación física, como picor." },
+                { "question": "______ que leer este libro.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que indica una recomendación o necesidad." },
+                { "question": "La ventana está ______, abierta.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí indica el estado o posición de la ventana." },
+                { "question": "¡______! Se me cayó el vaso.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay expresa un accidente o sorpresa." },
+                { "question": "______ una araña en la pared.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay (del verbo haber) indica la existencia de una araña." },
+                { "question": "El supermercado está ______, cruzando la plaza.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí indica la dirección del supermercado." },
+                { "question": "¡______! Qué bonito está el paisaje.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay expresa admiración o belleza." },
+                { "question": "______ que cuidar el planeta.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que indica una responsabilidad." },
+                { "question": "Mi gato siempre se acuesta ______, en mi regazo.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ahí", "explanation": "Ahí indica el lugar donde se acuesta el gato." },
+                { "question": "______ poca gente hoy.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay (del verbo haber) indica la existencia de poca gente." },
+                { "question": "¡______! Qué mal día he tenido.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay expresa un sentimiento de frustración o un mal día." }
+            ],
+            "intermedio": [
+                { "question": "Sentí un ______ de alivio al saber que todo había salido bien.", "options": ["ay", "ahí", "hay"], "correct": "ay", "explanation": "Ay como sustantivo se refiere a un suspiro o expresión de alivio." },
+                { "question": "La clave de su argumento radica ______, en su lógica impecable.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar o punto donde reside algo abstracto." },
+                { "question": "Para dominar un idioma, ______ que sumergirse en su cultura.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay que expresa una obligación o una condición necesaria." },
+                { "question": "¡______! Qué dilema tan complejo se nos presenta ahora.", "options": ["Ahí", "Hay", "Ay"], "correct": "Ay", "explanation": "Ay es una interjección que expresa la complejidad de un dilema." },
+                { "question": "El punto de inflexión de la historia fue justo ______, en el momento más crítico.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí se refiere a un punto específico en el tiempo o en un proceso." },
+                { "question": "No ______ motivos para dudar de su sinceridad.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la existencia de motivos." },
+                { "question": "______ que ser optimista a pesar de las adversidades.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una necesidad o un deber." },
+                { "question": "El cuadro más valioso del museo se exhibe ______, en la sala principal.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar físico donde se exhibe el cuadro." },
+                { "question": "En el mundo actual, ______ una creciente preocupación por el medio ambiente.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la existencia de una preocupación." },
+                { "question": "Los ______ del moribundo se escuchaban en el silencio de la noche.", "options": ["ayes", "ahíes", "hayes"], "correct": "ayes", "explanation": "Ayes (plural de 'ay') se refiere a quejas, lamentos o gemidos." },
+                { "question": "______ que fomentar el pensamiento crítico en los jóvenes.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una obligación o una acción necesaria." },
+                { "question": "La solución a la ecuación se encuentra ______, tras varias operaciones.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto o el punto donde se halla la solución." },
+                { "question": "¡______! Qué injusto es a veces el destino.", "options": ["Ahí", "Hay", "Ay"], "correct": "Ay", "explanation": "Ay es una interjección que expresa lamento o frustración." },
+                { "question": "En la ciudad ______ una gran diversidad cultural.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la existencia de diversidad." },
+                { "question": "El error más común se produce ______, al interpretar los datos.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí se refiere al punto o momento específico donde ocurre el error." },
+                { "question": "¡______! Si supieras lo que me costó lograrlo.", "options": ["Ahí", "Hay", "Ay"], "correct": "Ay", "explanation": "Ay expresa un lamento o un suspiro de esfuerzo." },
+                { "question": "______ que aprender de los errores pasados para mejorar.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que indica una necesidad o una lección aprendida." },
+                { "question": "La verdadera belleza del paisaje se aprecia desde ______, en la cima de la colina.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar desde donde se aprecia la belleza." },
+                { "question": "Siempre ______ un camino cuando la voluntad es fuerte.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la existencia de un camino o posibilidad." },
+                { "question": "Sentía un ______ en el alma al recordar sus palabras.", "options": ["ay", "ahí", "hay"], "correct": "ay", "explanation": "Ay como sustantivo se refiere a un lamento o pena profunda." },
+                { "question": "______ que adaptarse a los cambios para progresar.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que indica una necesidad o condición para el progreso." },
+                { "question": "El mapa indica que el tesoro está escondido justo ______. ", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar exacto donde se encuentra el tesoro." },
+                { "question": "¡______! Cuánta paciencia se necesita para este trabajo.", "options": ["Ahí", "Hay", "Ay"], "correct": "Ay", "explanation": "Ay es una interjección que expresa una exclamación sobre la cantidad de paciencia." },
+                { "question": "En el discurso del político ______ un mensaje oculto.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la existencia de un mensaje." },
+                { "question": "El documento relevante para el caso se halla ______, en el archivo histórico.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar físico donde se encuentra el archivo histórico." },
+                { "question": "Un ______ de resignación se dibujó en su semblante, denotando la aceptación de lo ineludible.", "options": ["ay", "ahí", "hay"], "correct": "ay", "explanation": "Ay como sustantivo se refiere a un suspiro o expresión de resignación." },
+                { "question": "La paradoja inherente a la condición humana se manifiesta justo ______, en la dicotomía entre la libertad y la predestinación.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí se refiere a un punto específico o un lugar abstracto donde algo se manifiesta." },
+                { "question": "No ______ atisbo de duda en su convicción, a pesar de la adversidad.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un atisbo de duda." },
+                { "question": "¡______! Qué abismo de incomprensión se cierne sobre nosotros.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay es una interjección que expresa una exclamación de angustia o incomprensión." },
+                { "question": "La génesis del conflicto se sitúa ______ en la divergencia de intereses antagónicos.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto o el punto de origen de algo." },
+                { "question": "______ que discernir entre la retórica falaz y la verdad incontrovertible.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una obligación o necesidad de discernimiento." },
+                { "question": "Los ______ de la crítica literaria a menudo desentrañan las complejidades del subtexto.", "options": ["ayes", "ahíes", "hayes"], "correct": "ayes", "explanation": "Ayes (plural de 'ay') se refiere a lamentos, quejas o expresiones de dolor/angustia." },
+                { "question": "La esencia de la dialéctica platónica radica ______ en la búsqueda incesante de la verdad.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto donde reside la esencia de algo." },
+                { "question": "No ______ óbice alguno que impida la consecución de nuestros objetivos.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un impedimento." },
+                { "question": "¡______! Qué laberinto de contradicciones se despliega ante nuestros ojos.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay es una interjección que expresa una exclamación de asombro o frustración ante la complejidad." },
+                { "question": "La epifanía se produjo justo ______, en el cenit de su introspección.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí se refiere a un punto específico en el tiempo o un momento culminante." },
+                { "question": "______ que ponderar las implicaciones éticas de cada acción.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una obligación o necesidad de consideración ética." },
+                { "question": "Un ______ de melancolía impregnaba el ambiente, reflejo de un pasado irrecuperable.", "options": ["ay", "ahí", "hay"], "correct": "ay", "explanation": "Ay como sustantivo se refiere a un lamento o suspiro de melancolía." },
+                { "question": "La génesis etimológica del vocablo se encuentra ______ en las raíces latinas.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto o el origen de algo." },
+                { "question": "No ______ paliativo que mitigue el dolor de la pérdida.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un paliativo." },
+                { "question": "______ que trascender las limitaciones impuestas por la percepción subjetiva.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una necesidad o un imperativo de trascendencia." },
+                { "question": "Los ______ del existencialismo sartriano resuenan en la conciencia contemporánea.", "options": ["ayes", "ahíes", "hayes"], "correct": "ayes", "explanation": "Ayes (plural de 'ay') se refiere a lamentos o expresiones de angustia existencial." },
+                { "question": "La antinomia entre la razón y la emoción se resuelve ______ en la síntesis hegeliana.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto o la resolución de un conflicto." },
+                { "question": "No ______ resquicio para la ambigüedad en la formulación de la hipótesis.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un margen para la ambigüedad." },
+                { "question": "¡______! Qué intrincada red de causalidades se entrelaza en este suceso.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay es una interjección que expresa asombro o frustración ante la complejidad." },
+                { "question": "La clave para desentrañar el enigma se oculta ______ en los detalles más ínfimos.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto donde se oculta la clave." },
+                { "question": "______ que dilucidar la correlación entre las variables para establecer una inferencia válida.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una necesidad o un requisito para la inferencia." },
+                { "question": "Un ______ de perplejidad se apoderó de su rostro al confrontar la aporía.", "options": ["ay", "ahí", "hay"], "correct": "ay", "explanation": "Ay como sustantivo se refiere a una exclamación de perplejidad." },
+                { "question": "La teleología del universo se infiere ______ de la coherencia de sus leyes.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto o la fuente de la inferencia." },
+                { "question": "No ______ vislumbre de esperanza en el horizonte de la desesperación.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de una esperanza." },
+                { "question": "______ que sopesar las implicaciones ontológicas de la existencia.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una obligación o necesidad de sopesar implicaciones." },
+                { "question": "Los ______ de la tragedia griega evocan la catarsis en el espectador.", "options": ["ayes", "ahíes", "hayes"], "correct": "ayes", "explanation": "Ayes (plural de 'ay') se refiere a lamentos o expresiones de dolor." },
+                { "question": "La esencia de la hermenéutica reside ______ en la interpretación contextualizada del texto.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto donde reside la esencia." },
+                { "question": "No ______ impedimento insuperable para la consecución del conocimiento.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un impedimento." },
+                { "question": "¡______! Qué vorágine de pensamientos asalta mi mente.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay es una interjección que expresa una exclamación de agitación mental." },
+                { "question": "La génesis del pensamiento crítico se gesta ______ en la capacidad de cuestionar lo establecido.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto o el origen de algo." },
+                { "question": "______ que aprehender la complejidad de la realidad en su totalidad.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una necesidad o un imperativo de comprensión." },
+                { "question": "Un ______ de asombro se escapó de sus labios al contemplar la magnitud del universo.", "options": ["ay", "ahí", "hay"], "correct": "ay", "explanation": "Ay como sustantivo se refiere a una exclamación de asombro." },
+                { "question": "La estructura subyacente de la gramática se revela ______ en la sintaxis profunda.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto donde se revela la estructura." },
+                { "question": "No ______ vestigio de duda en la certeza de sus convicciones.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un vestigio de duda." },
+                { "question": "______ que desentrañar los arcanos del inconsciente colectivo.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una necesidad o un imperativo de descubrimiento." },
+                { "question": "Los ______ de la poesía mística expresan la inefabilidad de lo divino.", "options": ["ayes", "ahíes", "hayes"], "correct": "ayes", "explanation": "Ayes (plural de 'ay') se refiere a expresiones de lamento o éxtasis místico." },
+                { "question": "La verdad trascendente se manifiesta ______ en la intuición pura.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto o la forma de manifestación de la verdad." },
+                { "question": "No ______ obstáculo que la voluntad indomable no pueda superar.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un obstáculo insuperable." },
+                { "question": "¡______! Qué intrincado tapiz de destinos se teje en el devenir.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay es una interjección que expresa una exclamación de asombro o complejidad." },
+                { "question": "La complejidad del sistema radica ______ en la interconexión de sus componentes.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto donde reside la complejidad." },
+                { "question": "______ que fomentar la metacognición para un aprendizaje significativo.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una necesidad o recomendación pedagógica." },
+                { "question": "Un ______ de alivio se extendió por la sala al conocerse el veredicto.", "options": ["ay", "ahí", "hay"], "correct": "ay", "explanation": "Ay como sustantivo se refiere a un suspiro o expresión de alivio." },
+                { "question": "El punto de convergencia de las teorías se encuentra ______ en la síntesis paradigmática.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto donde convergen las teorías." },
+                { "question": "No ______ fisura en la coherencia lógica de su argumentación.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de una fisura." }
+            ],
+            "avanzado": [
+                { "question": "La diferencia sutil entre la interjección y el sustantivo 'ay' reside precisamente ______, en su función sintáctica.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí se usa para señalar un punto específico, en este caso, la ubicación de la diferencia." },
+                { "question": "Aunque ______ una plétora de teorías, la evidencia empírica es escasa.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la existencia de esperanzas, aunque sean pocas." },
+                { "question": "Los ______ de la filosofía existencialista a menudo abordan la angustia humana.", "options": ["ayes", "ahíes", "hayes"], "correct": "ayes", "explanation": "Ayes (plural de 'ay') se refiere a los lamentos o quejidos que resonaron." },
+                { "question": "El quid de la cuestión se halla ______ en la antítesis entre lo aparente y lo real.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí se refiere al lugar abstracto donde reside el desafío." },
+                { "question": "Para una comprensión cabal del fenómeno, ______ que trascender la mera observación.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay que indica la necesidad o la obligación de considerar todas las perspectivas." },
+                { "question": "Un ______ de resignación se dibujó en su semblante, denotando la aceptación de lo ineludible.", "options": ["ay", "ahí", "hay"], "correct": "ay", "explanation": "Ay como sustantivo se refiere a un suspiro o expresión de resignación." },
+                { "question": "La paradoja inherente a la condición humana se manifiesta justo ______, en la dicotomía entre la libertad y la predestinación.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí se refiere a un punto específico o un lugar abstracto donde algo se manifiesta." },
+                { "question": "No ______ atisbo de duda en su convicción, a pesar de la adversidad.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un atisbo de duda." },
+                { "question": "¡______! Qué abismo de incomprensión se cierne sobre nosotros.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay es una interjección que expresa una exclamación de angustia o incomprensión." },
+                { "question": "La génesis del conflicto se sitúa ______ en la divergencia de intereses antagónicos.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto o el punto de origen de algo." },
+                { "question": "______ que discernir entre la retórica falaz y la verdad incontrovertible.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una obligación o necesidad de discernimiento." },
+                { "question": "Los ______ de la crítica literaria a menudo desentrañan las complejidades del subtexto.", "options": ["ayes", "ahíes", "hayes"], "correct": "ayes", "explanation": "Ayes (plural de 'ay') se refiere a lamentos, quejas o expresiones de dolor/angustia." },
+                { "question": "La esencia de la dialéctica platónica radica ______ en la búsqueda incesante de la verdad.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto donde reside la esencia de algo." },
+                { "question": "No ______ óbice alguno que impida la consecución de nuestros objetivos.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un impedimento." },
+                { "question": "¡______! Qué laberinto de contradicciones se despliega ante nuestros ojos.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay es una interjección que expresa una exclamación de asombro o frustración ante la complejidad." },
+                { "question": "La epifanía se produjo justo ______, en el cenit de su introspección.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí se refiere a un punto específico en el tiempo o un momento culminante." },
+                { "question": "______ que ponderar las implicaciones éticas de cada acción.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una obligación o necesidad de consideración ética." },
+                { "question": "Un ______ de melancolía impregnaba el ambiente, reflejo de un pasado irrecuperable.", "options": ["ay", "ahí", "hay"], "correct": "ay", "explanation": "Ay como sustantivo se refiere a un lamento o suspiro de melancolía." },
+                { "question": "La génesis etimológica del vocablo se encuentra ______ en las raíces latinas.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto o el origen de algo." },
+                { "question": "No ______ paliativo que mitigue el dolor de la pérdida.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un paliativo." },
+                { "question": "______ que trascender las limitaciones impuestas por la percepción subjetiva.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una necesidad o un imperativo de trascendencia." },
+                { "question": "Los ______ del existencialismo sartriano resuenan en la conciencia contemporánea.", "options": ["ayes", "ahíes", "hayes"], "correct": "ayes", "explanation": "Ayes (plural de 'ay') se refiere a lamentos o expresiones de angustia existencial." },
+                { "question": "La antinomia entre la razón y la emoción se resuelve ______ en la síntesis hegeliana.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto o la resolución de un conflicto." },
+                { "question": "No ______ resquicio para la ambigüedad en la formulación de la hipótesis.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un margen para la ambigüedad." },
+                { "question": "¡______! Qué intrincada red de causalidades se entrelaza en este suceso.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay es una interjección que expresa asombro o frustración ante la complejidad." },
+                { "question": "La clave para desentrañar el enigma se oculta ______ en los detalles más ínfimos.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto donde se oculta la clave." },
+                { "question": "______ que dilucidar la correlación entre las variables para establecer una inferencia válida.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una necesidad o un requisito para la inferencia." },
+                { "question": "Un ______ de perplejidad se apoderó de su rostro al confrontar la aporía.", "options": ["ay", "ahí", "hay"], "correct": "ay", "explanation": "Ay como sustantivo se refiere a una exclamación de perplejidad." },
+                { "question": "La teleología del universo se infiere ______ de la coherencia de sus leyes.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto o la fuente de la inferencia." },
+                { "question": "No ______ vislumbre de esperanza en el horizonte de la desesperación.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de una esperanza." },
+                { "question": "______ que sopesar las implicaciones ontológicas de la existencia.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una obligación o necesidad de sopesar implicaciones." },
+                { "question": "Los ______ de la tragedia griega evocan la catarsis en el espectador.", "options": ["ayes", "ahíes", "hayes"], "correct": "ayes", "explanation": "Ayes (plural de 'ay') se refiere a lamentos o expresiones de dolor." },
+                { "question": "La esencia de la hermenéutica reside ______ en la interpretación contextualizada del texto.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto donde reside la esencia." },
+                { "question": "No ______ impedimento insuperable para la consecución del conocimiento.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un impedimento." },
+                { "question": "¡______! Qué vorágine de pensamientos asalta mi mente.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay es una interjección que expresa una exclamación de agitación mental." },
+                { "question": "La génesis del pensamiento crítico se gesta ______ en la capacidad de cuestionar lo establecido.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto o el origen de algo." },
+                { "question": "______ que aprehender la complejidad de la realidad en su totalidad.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una necesidad o un imperativo de comprensión." },
+                { "question": "Un ______ de asombro se escapó de sus labios al contemplar la magnitud del universo.", "options": ["ay", "ahí", "hay"], "correct": "ay", "explanation": "Ay como sustantivo se refiere a una exclamación de asombro." },
+                { "question": "La estructura subyacente de la gramática se revela ______ en la sintaxis profunda.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto donde se revela la estructura." },
+                { "question": "No ______ vestigio de duda en la certeza de sus convicciones.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un vestigio de duda." },
+                { "question": "______ que desentrañar los arcanos del inconsciente colectivo.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una necesidad o un imperativo de descubrimiento." },
+                { "question": "Los ______ de la poesía mística expresan la inefabilidad de lo divino.", "options": ["ayes", "ahíes", "hayes"], "correct": "ayes", "explanation": "Ayes (plural de 'ay') se refiere a expresiones de lamento o éxtasis místico." },
+                { "question": "La verdad trascendente se manifiesta ______ en la intuición pura.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto o la forma de manifestación de la verdad." },
+                { "question": "No ______ obstáculo que la voluntad indomable no pueda superar.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de un obstáculo insuperable." },
+                { "question": "¡______! Qué intrincado tapiz de destinos se teje en el devenir.", "options": ["Ay", "Ahí", "Hay"], "correct": "Ay", "explanation": "Ay es una interjección que expresa una exclamación de asombro o complejidad." },
+                { "question": "La complejidad del sistema radica ______ en la interconexión de sus componentes.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto donde reside la complejidad." },
+                { "question": "______ que fomentar la metacognición para un aprendizaje significativo.", "options": ["Ay", "Ahí", "Hay"], "correct": "Hay", "explanation": "Hay que expresa una necesidad o recomendación pedagógica." },
+                { "question": "Un ______ de alivio se extendió por la sala al conocerse el veredicto.", "options": ["ay", "ahí", "hay"], "correct": "ay", "explanation": "Ay como sustantivo se refiere a un suspiro o expresión de alivio." },
+                { "question": "El punto de convergencia de las teorías se encuentra ______ en la síntesis paradigmática.", "options": ["ay", "ahí", "hay"], "correct": "ahí", "explanation": "Ahí indica el lugar abstracto donde convergen las teorías." },
+                { "question": "No ______ fisura en la coherencia lógica de su argumentación.", "options": ["ay", "ahí", "hay"], "correct": "hay", "explanation": "Hay (del verbo haber) indica la inexistencia de una fisura." }
+            ]
+        };
+
+        // Elementos del DOM
+        const levelSelectionHeader = document.getElementById('level-selection-header');
+        const quizSectionDiv = document.getElementById('quiz-section');
+        const quizLevelTitle = document.getElementById('quiz-level-title');
+        const questionNumberSpan = document.getElementById('question-number');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackContainer = document.getElementById('feedback-container');
+        const feedbackText = document.getElementById('feedback-text');
+        const explanationText = document.getElementById('explanation-text');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+        const restartLevelButton = document.getElementById('restart-level-button');
+        const toggleGuideButton = document.getElementById('toggle-guide-button');
+        const quickGuideContent = document.getElementById('quick-guide-content');
+        const guideArrow = document.getElementById('guide-arrow');
+        const scoreModal = document.getElementById('score-modal');
+        const finalScoreSpan = document.getElementById('final-score');
+        const restartFullQuizButton = document.getElementById('restart-full-quiz-button');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const questionArea = document.getElementById('question-area');
+        const quizContentArea = document.getElementById('quiz-content-area');
+
+
+        // Variables de estado del quiz
+        let currentLevel = '';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        // answeredQuestions: Almacena {nivel: {indicePregunta: true, ...}} para saber si una pregunta ya fue respondida
+        let answeredQuestions = {};
+        // userAnswers: Almacena {nivel: {indicePregunta: respuestaUsuario, ...}} para guardar la respuesta del usuario
+        let userAnswers = {};
+
+        // Almacena las preguntas mezcladas para cada nivel
+        let shuffledQuizData = {
+            "basico": [],
+            "intermedio": [],
+            "avanzado": []
+        };
+
+        /**
+         * Función para mezclar un array (algoritmo de Fisher-Yates).
+         * @param {Array} array - El array a mezclar.
+         * @returns {Array} El array mezclado.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Intercambia elementos
+            }
+            return array;
+        }
+
+        /**
+         * Elimina las clases de estilo de fondo y texto por defecto de un elemento.
+         * @param {HTMLElement} element - El elemento del DOM.
+         */
+        function removeDefaultButtonStyles(element) {
+            element.classList.remove('bg-gray-50', 'text-gray-800', 'border-gray-200', 'hover:bg-gray-100');
+        }
+
+        /**
+         * Inicializa el quiz para un nivel de dificultad seleccionado.
+         * @param {string} level - El nivel de dificultad ('basico', 'intermedio', 'avanzado').
+         */
+        function startQuiz(level) {
+            currentLevel = level;
+            currentQuestionIndex = 0;
+            score = 0;
+            // Reinicia las preguntas respondidas y las respuestas del usuario para el nivel actual
+            answeredQuestions[currentLevel] = {};
+            userAnswers[currentLevel] = {};
+
+            // **NUEVA VERIFICACIÓN ROBUSTA:**
+            // Asegura que quizData[currentLevel] existe, es un array y no está vacío.
+            if (!quizData[currentLevel] || !Array.isArray(quizData[currentLevel]) || quizData[currentLevel].length === 0) {
+                console.error("Error: Los datos del quiz para el nivel '" + currentLevel + "' no son válidos o están vacíos.");
+                // Restaura el estado inicial de la UI para que el usuario pueda intentar de nuevo
+                welcomeMessage.classList.remove('hidden');
+                questionArea.classList.add('hidden');
+                restartLevelButton.classList.add('hidden');
+                quizLevelTitle.textContent = '';
+                quickGuideContent.classList.add('hidden');
+                guideArrow.textContent = '▼';
+                return; // Detiene la ejecución de la función
+            }
+
+            // Mezcla las preguntas del nivel seleccionado y las guarda en shuffledQuizData
+            shuffledQuizData[currentLevel] = shuffleArray([...quizData[currentLevel]]); // Crea una copia para no modificar el original
+
+            // Oculta el mensaje de bienvenida y muestra el área de preguntas
+            welcomeMessage.classList.add('hidden');
+            questionArea.classList.remove('hidden');
+            restartLevelButton.classList.remove('hidden'); // Muestra el botón de reiniciar nivel
+
+            // Corrige la tilde en "Básico" y actualiza el título del nivel
+            quizLevelTitle.textContent = `Nivel: ${level === 'basico' ? 'Básico' : level.charAt(0).toUpperCase() + level.slice(1)}`;
+
+            loadQuestion(); // Carga la primera pregunta
+        }
+
+        /**
+         * Carga y muestra la pregunta actual.
+         */
+        function loadQuestion() {
+            // Ahora usamos shuffledQuizData para obtener las preguntas
+            const questions = shuffledQuizData[currentLevel];
+
+            // Defensive check: If currentLevel is not set or questions array is invalid/empty
+            if (!currentLevel || !questions || questions.length === 0) {
+                console.error("Error: No questions found for the current level or level is invalid:", currentLevel);
+                // Revert to initial state to prevent further errors and prompt user to select level
+                welcomeMessage.classList.remove('hidden'); // Muestra el mensaje de bienvenida si hay un error
+                questionArea.classList.add('hidden');
+                restartLevelButton.classList.add('hidden');
+                quizLevelTitle.textContent = '';
+                quickGuideContent.classList.add('hidden'); // Asegura que la guía esté oculta si vuelve a la portada
+                guideArrow.textContent = '▼';
+                return; // Stop execution to prevent TypeError
+            }
+
+            const question = questions[currentQuestionIndex];
+
+            // Restaura el quizContentArea a su estilo por defecto (gris pálido) al cargar una nueva pregunta
+            quizContentArea.classList.remove('quiz-content-basico-selected', 'quiz-content-intermedio-selected', 'quiz-content-avanzado-selected');
+            quizContentArea.classList.add('bg-gray-50', 'border-gray-100', 'text-gray-800');
+
+
+            // Actualiza el número de pregunta y el texto de la pregunta
+            questionNumberSpan.textContent = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+            questionText.textContent = question.question;
+            optionsContainer.innerHTML = ''; // Limpia las opciones anteriores
+            feedbackContainer.classList.add('hidden'); // Oculta el feedback
+            feedbackText.textContent = '';
+            explanationText.textContent = '';
+
+            // Crea los botones de opción para la pregunta actual
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add(
+                    'option-button',
+                    'w-full', 'py-3', 'px-4', 'rounded-lg', 'shadow-sm',
+                    /* Eliminado text-gray-800 y font-medium de aquí para que los estilos CSS personalizados tengan prioridad */
+                    'bg-gray-50', 'hover:bg-gray-100', 'transition', 'duration-200', 'ease-in-out',
+                    'focus:outline-none', 'border', 'border-gray-200'
+                );
+                button.dataset.option = option;
+                button.addEventListener('click', handleOptionClick);
+                optionsContainer.appendChild(button);
+            });
+
+            // Habilita/deshabilita los botones de navegación
+            prevButton.disabled = currentQuestionIndex === 0;
+            prevButton.classList.toggle('opacity-50', currentQuestionIndex === 0);
+            prevButton.classList.toggle('cursor-not-allowed', currentQuestionIndex === 0);
+
+            // Si la pregunta ya ha sido respondida, muestra el feedback y deshabilita las opciones
+            if (answeredQuestions[currentLevel][currentQuestionIndex]) {
+                disableOptions();
+                const previouslySelectedOption = userAnswers[currentLevel][currentQuestionIndex];
+                const previouslySelectedButton = optionsContainer.querySelector(`[data-option="${previouslySelectedOption}"]`);
+                const correctButton = optionsContainer.querySelector(`[data-option="${question.correct}"]`);
+
+                if (previouslySelectedOption === question.correct) {
+                    // User was correct: selected button (which is also correct) gets level color
+                    if (previouslySelectedButton) {
+                        removeDefaultButtonStyles(previouslySelectedButton);
+                        previouslySelectedButton.classList.add(`option-correct-${currentLevel}`);
+                    }
+                } else {
+                    // User was incorrect: selected button gets orange, correct button gets level color
+                    if (previouslySelectedButton) {
+                        removeDefaultButtonStyles(previouslySelectedButton);
+                        previouslySelectedButton.classList.add('option-selected');
+                    }
+                    if (correctButton) {
+                        removeDefaultButtonStyles(correctButton);
+                        correctButton.classList.add(`option-correct-${currentLevel}`);
+                    }
+                }
+                showFeedback(previouslySelectedOption, question.correct, question.explanation);
+                nextButton.disabled = false;
+                nextButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextButton.disabled = true;
+                nextButton.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        /**
+         * Maneja el evento de clic en un botón de opción.
+         * @param {Event} event - El evento de clic.
+         */
+        function handleOptionClick(event) {
+            if (answeredQuestions[currentLevel][currentQuestionIndex]) {
+                return;
+            }
+
+            const selectedOption = event.target.dataset.option;
+            // Usamos shuffledQuizData para obtener la pregunta actual
+            const currentQuestion = shuffledQuizData[currentLevel][currentQuestionIndex];
+
+            // Store user answer and mark as answered
+            userAnswers[currentLevel][currentQuestionIndex] = selectedOption;
+            answeredQuestions[currentLevel][currentQuestionIndex] = true;
+
+            disableOptions(); // Disable all buttons
+
+            const selectedButton = event.target;
+            const correctButton = optionsContainer.querySelector(`[data-option="${currentQuestion.correct}"]`);
+
+            if (selectedOption === currentQuestion.correct) {
+                // User was correct: selected button (which is also correct) gets level color
+                removeDefaultButtonStyles(selectedButton);
+                selectedButton.classList.add(`option-correct-${currentLevel}`);
+            } else {
+                // User was incorrect: selected button gets orange, correct button gets level color
+                removeDefaultButtonStyles(selectedButton);
+                selectedButton.classList.add('option-selected');
+
+                if (correctButton) {
+                    removeDefaultButtonStyles(correctButton);
+                    correctButton.classList.add(`option-correct-${currentLevel}`);
+                }
+            }
+
+            showFeedback(selectedOption, currentQuestion.correct, currentQuestion.explanation);
+
+            // Update score
+            if (selectedOption === currentQuestion.correct) {
+                score++;
+            }
+
+            nextButton.disabled = false;
+            nextButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        /**
+         * Deshabilita todos los botones de opción.
+         */
+        function disableOptions() {
+            document.querySelectorAll('.option-button').forEach(button => {
+                button.disabled = true;
+                // No aplicar opacity-70 aquí, se maneja en el CSS .option-button:disabled
+            });
+        }
+
+        /**
+         * Muestra la retroalimentación (correcta/incorrecta) y la explicación.
+         * @param {string} selectedOption - La opción elegida por el usuario.
+         * @param {string} correctAnswer - La respuesta correcta.
+         * @param {string} explanation - La explicación de la respuesta.
+         */
+        function showFeedback(selectedOption, correctAnswer, explanation) {
+            feedbackContainer.classList.remove('hidden');
+            if (selectedOption === correctAnswer) {
+                feedbackText.textContent = '¡Correcto!';
+                feedbackContainer.classList.remove('bg-red-100', 'border-red-300', 'text-red-700');
+                feedbackContainer.classList.add('bg-green-100', 'border-green-300', 'text-green-700');
+            } else {
+                feedbackText.textContent = `Incorrecto. La respuesta correcta era: "${correctAnswer}"`;
+                feedbackContainer.classList.remove('bg-green-100', 'border-green-300', 'text-green-700');
+                feedbackContainer.classList.add('bg-red-100', 'border-red-300', 'text-red-700');
+            }
+            explanationText.textContent = explanation;
+        }
+
+        /**
+         * Navega a la siguiente pregunta o finaliza el quiz.
+         */
+        function nextQuestion() {
+            // Usamos shuffledQuizData para la longitud total de preguntas
+            const questions = shuffledQuizData[currentLevel];
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                // Fin del quiz para este nivel
+                showScoreModal();
+            }
+        }
+
+        /**
+         * Navega a la pregunta anterior.
+         */
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        }
+
+        /**
+         * Muestra el modal de puntuación final.
+         */
+        function showScoreModal() {
+            // Usamos quizData[currentLevel].length para la puntuación total, ya que es el número original de preguntas
+            finalScoreSpan.textContent = `${score} / ${quizData[currentLevel].length}`;
+            scoreModal.classList.remove('hidden');
+        }
+
+        /**
+         * Reinicia el quiz a la pantalla de selección de nivel.
+         */
+        function restartFullQuiz() {
+            scoreModal.classList.add('hidden');
+            currentLevel = '';
+            currentQuestionIndex = 0;
+            score = 0;
+            answeredQuestions = {}; // Limpia todas las preguntas respondidas para todos los niveles
+            userAnswers = {}; // Limpia todas las respuestas del usuario para todos los niveles
+            shuffledQuizData = { // Reinicia también las preguntas mezcladas
+                "basico": [],
+                "intermedio": [],
+                "avanzado": []
+            };
+
+            // Restaura el mensaje de bienvenida y oculta el área de preguntas
+            welcomeMessage.classList.remove('hidden');
+            questionArea.classList.add('hidden');
+            restartLevelButton.classList.add('hidden'); // Oculta el botón de reiniciar nivel
+
+            quizLevelTitle.textContent = ''; // Limpia el título del nivel
+            // Asegura que la guía rápida esté oculta y la flecha hacia abajo
+            quickGuideContent.classList.add('hidden');
+            guideArrow.textContent = '▼';
+
+            // Restaura los colores por defecto del quizContentArea
+            quizContentArea.classList.remove('quiz-content-basico-selected', 'quiz-content-intermedio-selected', 'quiz-content-avanzado-selected');
+            quizContentArea.classList.add('bg-gray-50', 'border-gray-100');
+        }
+
+        /**
+         * Reinicia el nivel actual del quiz.
+         */
+        function restartCurrentLevel() {
+            if (currentLevel) {
+                startQuiz(currentLevel); // Simplemente reinicia el nivel actual
+            }
+        }
+
+
+        // Oyentes de eventos
+        document.querySelectorAll('.level-button').forEach(button => {
+            button.addEventListener('click', (event) => startQuiz(event.target.dataset.level));
+        });
+
+        nextButton.addEventListener('click', nextQuestion);
+        prevButton.addEventListener('click', prevQuestion);
+        restartFullQuizButton.addEventListener('click', restartFullQuiz);
+        restartLevelButton.addEventListener('click', restartCurrentLevel);
+
+
+        // El botón de alternancia de la guía rápida
+        toggleGuideButton.addEventListener('click', () => {
+            quickGuideContent.classList.toggle('hidden');
+            if (quickGuideContent.classList.contains('hidden')) {
+                guideArrow.textContent = '▼';
+            } else {
+                guideArrow.textContent = '▲';
+            }
+        });
+
+    </script>
+</body>
+</html>
