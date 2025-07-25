@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Ortografía: Ay, Ahí y Hay</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); /* Degradado suave */
+            background-size: 200% 200%;
+            animation: gradientAnimation 10s ease infinite alternate;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            /* Mejoras para la nitidez de la fuente */
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* Sombra más profunda */
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            opacity: 0; /* Para animación de entrada */
+            transform: translateY(20px); /* Para animación de entrada */
+            animation: fadeInSlideUp 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeInSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #2c3e50; /* Color de título más oscuro */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .word-description {
+            font-size: 0.95rem;
+            color: #334155; /* Darker text for better readability */
+            margin-top: 1.5rem; /* Moved to bottom, added top margin */
+            line-height: 1.5;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left; /* Align text left for better readability */
+            padding: 0 1rem; /* Add some padding */
+        }
+        .word-description strong {
+            color: #2c3e50;
+        }
+
+        .option-button {
+            background: linear-gradient(145deg, #e2f0ff, #cce0ff); /* Degradado en botones */
+            color: #1a202c;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 600; /* Fuente más negrita para opciones */
+            cursor: pointer;
+            transition: all 0.2s ease-in-out; /* Transición más general */
+            border: 2px solid transparent;
+            text-align: left;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .option-button:hover:not(.selected):not(.correct):not(.incorrect):not(:disabled) {
+            background: linear-gradient(145deg, #cce0ff, #b3d4ff);
+            transform: translateY(-3px) scale(1.01); /* Resalte más pronunciado */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+        .option-button.selected {
+            background: linear-gradient(145deg, #93c5fd, #60a5fa); /* Degradado azul */
+            border-color: #3b82f6; /* Blue-500 */
+            color: #1e40af; /* Blue-800 */
+            box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4);
+        }
+        .option-button.correct {
+            background: linear-gradient(145deg, #81c784, #4CAF50); /* Degradado verde vibrante */
+            border-color: #4CAF50; /* Verde más oscuro */
+            color: #000000; /* Texto en negro para la opción correcta */
+            box-shadow: 0 3px 8px rgba(76, 175, 80, 0.4);
+            animation: pulseCorrect 0.5s ease-out; /* Animación de feedback */
+        }
+        .option-button.incorrect {
+            background: linear-gradient(145deg, #fee2e2, #fca5a5); /* Degradado rojo */
+            border-color: #ef4444; /* Red-500 */
+            color: #991b1b; /* Red-800 */
+            box-shadow: 0 3px 8px rgba(239, 68, 68, 0.4);
+            animation: shakeIncorrect 0.5s ease-out; /* Animación de feedback */
+        }
+        .option-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+
+        @keyframes pulseCorrect {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        @keyframes shakeIncorrect {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        .navigation-button {
+            background: linear-gradient(145deg, #3b82f6, #2563eb); /* Degradado azul */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 3px 8px rgba(59, 130, 246, 0.3);
+        }
+        .navigation-button:hover {
+            background: linear-gradient(145deg, #2563eb, #1d4ed8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(59, 130, 246, 0.4);
+        }
+        .navigation-button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: translateY(0);
+        }
+
+        /* Estilo para los botones de nivel, acorde con el index */
+        .level-button {
+            display: flex; /* Usar flexbox para centrar contenido */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem; /* Aumentar padding para que sean más grandes */
+            background-color: #e2f0ff; /* Fondo azul claro del index */
+            border-radius: 1rem; /* Bordes redondeados del index */
+            transition: all 0.2s ease-in-out; /* Transición suave */
+            cursor: pointer;
+            text-decoration: none;
+            color: #1a202c; /* Color de texto oscuro del index */
+            min-height: 120px; /* Altura mínima para mantener consistencia */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil del index */
+            border: none; /* Eliminar borde */
+            font-weight: 600; /* Fuente semibold para el texto */
+            font-size: 1.15rem; /* Tamaño de fuente para el texto del botón */
+        }
+
+        .level-button:hover {
+            background-color: #cce0ff; /* Fondo ligeramente más oscuro al pasar el ratón */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada al pasar el ratón */
+            transform: none; /* Eliminar efecto de subida */
+        }
+
+        .level-button.active {
+            background-color: #3b82f6; /* Azul más intenso cuando está activo */
+            color: white; /* Texto blanco para el botón activo */
+            box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4); /* Sombra azul para el activo */
+            transform: none; /* Eliminar efecto de subida */
+        }
+
+        /* Estilo para los iconos dentro de los botones de nivel */
+        .level-button i {
+            font-size: 2.5rem; /* Tamaño del icono */
+            color: #3b82f6; /* Color azul para los iconos */
+            margin-bottom: 0.5rem; /* Espacio entre icono y texto */
+            transition: color 0.2s ease-in-out;
+        }
+
+        .level-button.active i {
+            color: white; /* Icono blanco cuando el botón está activo */
+        }
+
+        /* Ajustes para pantallas móviles */
+        @media (max-width: 639px) { /* sm breakpoint */
+            .level-button {
+                padding: 1rem;
+                font-size: 1rem;
+                width: 100%; /* Ocupa todo el ancho disponible */
+                min-height: 100px;
+            }
+            .level-button i {
+                font-size: 2rem; /* Icono más pequeño en móviles */
+            }
+            #level-selection {
+                flex-direction: column; /* Apila los botones en columna */
+            }
+        }
+
+        /* Styles for score and progress bar */
+        .score-display-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 1.5rem; /* Moved to bottom, added top margin */
+            margin-bottom: 1rem; /* Adjusted margin */
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .score-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .score-item i {
+            font-size: 1.2rem;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e7eb;
+            border-radius: 0.5rem;
+            height: 12px;
+            overflow: hidden;
+            margin-top: 0.5rem; /* Adjusted margin */
+            margin-bottom: 1.5rem;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #63b3ed, #3b82f6); /* Degradado azul */
+            border-radius: 0.5rem;
+            transition: width 0.5s ease-in-out;
+        }
+        .feedback-icon {
+            margin-left: 0.5rem;
+            font-size: 1.8rem; /* Tamaño del icono de feedback */
+            vertical-align: middle;
+        }
+        .feedback-icon.correct-icon {
+            color: #4CAF50; /* Verde vibrante */
+        }
+        .feedback-icon.incorrect-icon {
+            color: #ef4444; /* Rojo */
+        }
+        /* Adjusted question counter style */
+        #question-counter {
+            color: #334155; /* Darker color for visibility */
+            font-size: 1rem; /* Slightly larger font size */
+            font-weight: 500;
+            margin-bottom: 1rem; /* Ensure it has space */
+        }
+
+        /* Styles for in-page messages/confirmations */
+        .in-page-info-message {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        .in-page-action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        .in-page-action-buttons .navigation-button {
+            flex-grow: 1;
+            max-width: 250px;
+        }
+
+        /* New styles for overall results summary */
+        #overall-results-summary {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #e0f2f7; /* Light blue background */
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #b3e5fc; /* Light blue border */
+        }
+        #overall-results-summary h3 {
+            color: #0288d1; /* Darker blue for heading */
+            margin-bottom: 1rem;
+        }
+        #overall-results-summary p {
+            font-size: 1.1rem;
+            color: #334155;
+            margin-bottom: 0.5rem;
+        }
+        #overall-results-summary .font-bold {
+            font-weight: 700;
+        }
+        #overall-results-summary .text-green-700 {
+            color: #16a34a; /* Tailwind green-700 */
+        }
+        #overall-results-summary .text-red-700 {
+            color: #dc2626; /* Tailwind red-700 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl md:text-4xl font-extrabold mb-4 leading-tight">
+            Test de Ortografía: Ay, Ahí y Hay
+        </h1>
+        <p class="text-md text-gray-600 mb-6">
+            Mejora tu dominio de estas palabras clave.
+        </p>
+
+        <!-- Level Selection -->
+        <div id="level-selection" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <button class="level-button active" data-level="basic">
+                <i class="fas fa-seedling"></i>
+                <span>Nivel Básico</span>
+            </button>
+            <button class="level-button" data-level="intermediate">
+                <i class="fas fa-flask"></i>
+                <span>Nivel Intermedio</span>
+            </button>
+            <button class="level-button" data-level="advanced">
+                <i class="fas fa-brain"></i>
+                <span>Nivel Avanzado</span>
+            </button>
+        </div>
+
+        <!-- Test Area -->
+        <div id="test-area">
+            <p id="question-counter" class="text-sm text-gray-500 mb-4"></p>
+
+            <p id="current-question" class="text-2xl font-semibold text-gray-900 mb-6"></p>
+
+            <div id="options-container" class="grid grid-cols-1 gap-4 mb-6">
+                <!-- Options will be loaded here by JavaScript -->
+            </div>
+
+            <div class="flex justify-between gap-4">
+                <button id="prev-button" class="navigation-button">Anterior</button>
+                <button id="next-button" class="navigation-button">Siguiente</button>
+            </div>
+
+            <!-- Score, Progress Bar, Feedback and Explanation moved below navigation buttons -->
+            <div class="score-display-container">
+                <div class="score-item text-green-600">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="correct-count">0</span>
+                </div>
+                <div class="score-item text-red-600">
+                    <i class="fas fa-times-circle"></i>
+                    <span id="incorrect-count">0</span>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <div id="progress-bar-fill" class="progress-bar-fill"></div>
+            </div>
+
+            <!-- Area for dynamic messages and buttons -->
+            <div id="dynamic-message-area">
+                <p id="dynamic-info-message" class="in-page-info-message"></p>
+                <div id="dynamic-action-buttons" class="in-page-action-buttons"></div>
+            </div>
+
+            <div id="feedback-message" class="text-lg font-bold mt-4 mb-2 flex items-center justify-center" style="min-height: 1.5em;">
+                <!-- Feedback text and icon will appear here -->
+            </div>
+            <div id="explanation-message" class="text-md explanation-message mt-2 mb-4"></div>
+
+            <!-- Descripción de palabras moved here -->
+            <div class="word-description">
+                <p>
+                    <strong>Ay:</strong> interjección que expresa dolor, sorpresa o emoción.
+                    <br>
+                    <strong>Ahí:</strong> adverbio de lugar que indica una posición.
+                    <br>
+                    <strong>Hay:</strong> forma impersonal del verbo 'haber', indica existencia u obligación.
+                </p>
+            </div>
+
+            <!-- New Overall Results Summary Area (initially hidden) -->
+            <div id="overall-results-summary" class="hidden">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Resultados Totales</h3>
+                <p class="text-xl text-gray-700 mb-2">Aciertos totales: <span id="overall-correct-display" class="font-bold text-green-700">0</span></p>
+                <p class="text-xl text-gray-700 mb-4">Errores totales: <span id="overall-incorrect-display" class="font-bold text-red-700">0</span></p>
+                <button id="restart-all-button" class="navigation-button bg-blue-600 hover:bg-blue-700">Reiniciar Test Completo</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        (function() { // IIFE starts here to create a new scope
+            const docContent = `
+Aquí se presenta un resumen ampliado de las frases clave del quiz, incluyendo la pregunta original con el espacio, la opción correcta para rellenarlo y la explicación de la respuesta, organizado por nivel de dificultad:
+Nivel Básico (Esencial)
+Pregunta:  ¡______! Qué susto me diste.  Opción Correcta:  Ay  Explicación:  Ay es una interjección para expresar sorpresa o susto.
+Pregunta:  Pon el vaso ______, en la mesa.  Opción Correcta:  Ahí  Explicación:  Ahí es un adverbio de lugar que indica una posición específica.
+Pregunta:  En el parque ______ niños jugando.  Opción Correcta:  Hay  Explicación:  Hay (del verbo haber) indica existencia.
+Pregunta:  ¡______! Me he golpeado el dedo.  Opción Correcta:  Ay  Explicación:  Ay es una interjección para expresar dolor.
+Pregunta:  ______ que levantarse temprano mañana.  Opción Correcta:  Hay  Explicación:  Hay que indica obligación o necesidad.
+Pregunta:  ______ mucha comida en la nevera.  Opción Correcta:  Hay  Explicación:  Hay (del verbo haber) indica existencia de algo.
+Pregunta:  ¡______! Qué sorpresa más bonita.  Opción Correcta:  Ay  Explicación:  Ay se utiliza como interjección para expresar asombro, admiración o una emoción intensa ante algo inesperado y positivo.
+Pregunta:  ¡______! Qué pena que no pudieras venir.  Opción Correcta:  Ay  Explicación:  Ay se usa para expresar un sentimiento de lástima, desilusión o lamento ante una situación desafortunada.
+Pregunta:  En el pueblo ______ una iglesia antigua.  Opción Correcta:  Hay  Explicación:  Hay (del verbo haber) indica la existencia de la iglesia.
+Pregunta:  Tu móvil está ______, sobre el escritorio.  Opción Correcta:  Ahí  Explicación:  Ahí indica la ubicación del móvil.
+Pregunta:  ______ bastante ruido en la calle.  Opción Correcta:  Hay  Explicación:  Hay (del verbo haber) indica la existencia de ruido.
+Nivel Intermedio (Esencial)
+Pregunta:  Sentí un ______ de alivio al saber que todo había salido bien.  Opción Correcta:  ay  Explicación:  Ay como sustantivo se refiere a un suspiro o expresión de alivio.
+Pregunta:  La clave de su argumento radica ______, en su lógica impecable.  Opción Correcta:  ahí  Explicación:  Ahí indica el lugar o punto abstracto donde reside algo.
+Pregunta:  Para dominar un idioma, ______ que sumergirse en su cultura.  Opción Correcta:  hay  Explicación:  Hay que expresa una obligación o una condición necesaria.
+Pregunta:  ¡______! Qué dilema tan complejo se nos presenta ahora.  Opción Correcta:  Ay Explicación:'Ay' se usa como interjección para expresar la magnitud o dificultad de una situación.
+Pregunta:  El punto de inflexión de la historia fue justo ______, en el momento más crítico.  Opción Correcta:  ahí  Explicación:  Ahí se refiere a un punto específico en el tiempo o en un proceso.
+Pregunta:  No ______ motivos para dudar de su sinceridad.  Opción Correcta:  hay  Explicación:  Hay (del verbo haber) indica la existencia de motivos.
+Pregunta:  Los ______ del moribundo se escuchaban en el silencio de la noche.  Opción Correcta:  ayes  Explicación:  Ayes (plural de 'ay') se refiere a quejas, lamentos o gemidos.
+Pregunta:  La solución a la ecuación se encuentra ______, tras varias operaciones.  Opción Correcta:  ahí  Explicación:  Ahí indica el lugar abstracto o el punto donde se halla la solución.
+Pregunta:  En la ciudad ______ una gran diversidad cultural.  Opción Correcta:  hay  Explicación:  Hay (del verbo haber) indica la existencia de diversidad.
+Pregunta:  El error más común se produce ______, al interpretar los datos.  Opción Correcta:  ahí  Explicación:  Ahí se refiere al punto o momento específico donde ocurre el error.
+Nivel Avanzado (Esencial)
+Pregunta:  La diferencia sutil entre la interjección y el sustantivo 'ay' reside precisamente ______, en su función sintáctica.  Opción Correcta:  ahí  Explicación:  Ahí se usa para señalar un punto específico o la ubicación de una diferencia.
+Pregunta:  Aunque ______ una plétora de teorías, la evidencia empírica es escasa.  Opción Correcta:  hay  Explicación:  Hay (del verbo haber) indica la existencia de algo, aunque sea escaso.
+Pregunta:  Los ______ de la filosofía existencialista a menudo abordan la angustia humana.  Opción Correcta:  ayes  Explicación:  Ayes (plural de 'ay') se refiere a lamentos o expresiones de angustia.
+Pregunta:  El quid de la cuestión se halla ______, en la antítesis entre lo aparente y lo real.  Opción Correcta:  ahí  Explicación:  Ahí se refiere al lugar abstracto donde reside un desafío o punto crucial.
+Pregunta:  Para una comprensión cabal del fenómeno, ______ que trascender la mera observación.  Opción Correcta:  hay  Explicación:  Hay que indica una necesidad o una obligación para una comprensión profunda.
+Pregunta:  Un ______ de resignación se dibujó en su semblante, denotando la aceptación de lo ineludible.  Opción Correcta:  ay  Explicación:  Ay como sustantivo se refiere a un suspiro o expresión de resignación.
+Pregunta:  La paradoja inherente a la condición humana se manifiesta justo ______, en la dicotomía entre la libertad y la predestinación.  Opción Correcta:  ahí  Explicación:  Ahí se refiere a un punto específico o un lugar abstracto donde algo se manifiesta.
+Pregunta:  No ______ atisbo de duda en su convicción, a pesar de la adversidad.  Opción Correcta:  hay  Explicación:  Hay (del verbo haber) indica la inexistencia de un atisbo de duda.
+Pregunta:  ¡______! Qué abismo de incomprensión se cierne sobre nosotros.  Opción Correcta:  Ay  Explicación:  Ay es una interjección que expresa una exclamación de angustia o incomprensión.
+Pregunta:  La génesis del conflicto se sitúa ______, en la divergencia de intereses antagónicos.  Opción Correcta:  ahí  Explicación:  Ahí indica el lugar abstracto o el punto de origen de algo.
+Pregunta:  ______ que discernir entre la retórica falaz y la verdad incontrovertible.  Opción Correcta:  Hay  Explicación:  Hay expresa una obligación o necesidad de discernimiento.
+Pregunta:  Los ______ de la crítica literaria a menudo desentrañan las complejidades del subtexto.  Opción Correcta:  ayes  Explicación:  Ayes (plural de 'ay') se refiere a lamentos, quejas o expresiones de dolor/angustia.\nPregunta:  La esencia de la dialéctica platónica radica ______, en la búsqueda incesante de la verdad.  Opción Correcta:  ahí  Explicación:  Ahí indica el lugar abstracto donde reside la esencia de algo.
+Pregunta:  No ______ óbice alguno que impida la consecución de nuestros objetivos.  Opción Correcta:  hay  Explicación:  Hay (del verbo haber) indica la inexistencia de un impedimento.
+Pregunta:  ¡______! Qué laberinto de contradicciones se despliega ante nuestros ojos.  Opción Correcta:  Ay  Explicación:  Ay es una interjección que expresa una exclamación de asombro o frustración ante la complejidad.
+Pregunta:  La epifanía se produjo justo ______, en el cenit de su introspección.  Opción Correcta:  ahí  Explicación:  Ahí se refiere a un punto específico en el tiempo o un momento culminante.
+            `;
+
+            // Global variables for the test state
+            const allQuestions = {
+                basic: [],
+                intermediate: [],
+                advanced: []
+            };
+            const levelOrder = ['basic', 'intermediate', 'advanced'];
+            let shuffledQuestions = [];
+            let currentLevel = 'basic';
+            let currentQuestionIndex = 0;
+            let correctCount = 0; // Correct answers for current level
+            let incorrectCount = 0; // Incorrect answers for current level
+            let overallCorrectCount = 0; // Total correct answers across all levels
+            let overallIncorrectCount = 0; // Total incorrect answers across all levels
+            let userAnswers = {}; // Stores answers for the shuffled questions: { 'shuffledIndex': 'selectedOptionText', 'shuffledIndex_checked': true/false, 'shuffledIndex_counted': true/false }
+
+            // DOM elements
+            const questionCounterElem = document.getElementById('question-counter');
+            const currentQuestionElem = document.getElementById('current-question');
+            const optionsContainer = document.getElementById('options-container');
+            const feedbackMessageElem = document.getElementById('feedback-message');
+            const explanationMessageElem = document.getElementById('explanation-message');
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            const levelButtons = document.querySelectorAll('.level-button');
+            const testArea = document.getElementById('test-area');
+            const levelSelection = document.getElementById('level-selection');
+            const correctCountDisplay = document.getElementById('correct-count');
+            const incorrectCountDisplay = document.getElementById('incorrect-count');
+            const progressBarFill = document.getElementById('progress-bar-fill');
+            const dynamicInfoMessage = document.getElementById('dynamic-info-message');
+            const dynamicActionButtons = document.getElementById('dynamic-action-buttons');
+            const overallResultsSummary = document.getElementById('overall-results-summary');
+            const overallCorrectDisplay = document.getElementById('overall-correct-display');
+            const overallIncorrectDisplay = document.getElementById('overall-incorrect-display');
+            const restartAllButton = document.getElementById('restart-all-button');
+
+
+            /**
+             * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
+             * @param {Array} array The array to shuffle.
+             */
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+                }
+            }
+
+            /**
+             * Parses the raw document content into a structured questions object.
+             * @param {string} text The raw text content of the document.
+             */
+            function parseQuestions(text) {
+                const questions = {
+                    basic: [],
+                    intermediate: [],
+                    advanced: []
+                };
+                const lines = text.split('\n');
+                let currentLevel = null;
+                let tempQuestion = null;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+
+                    if (line.startsWith('Nivel Básico')) {
+                        currentLevel = 'basic';
+                        continue;
+                    } else if (line.startsWith('Nivel Intermedio')) {
+                        currentLevel = 'intermediate';
+                        continue;
+                    } else if (line.startsWith('Nivel Avanzado')) {
+                        currentLevel = 'advanced';
+                        continue;
+                    }
+
+                    if (line.startsWith('Pregunta:')) {
+                        if (tempQuestion && currentLevel) {
+                            questions[currentLevel].push(tempQuestion);
+                        }
+                        tempQuestion = {
+                            question: '',
+                            options: [],
+                            correctAnswer: '',
+                            explanation: ''
+                        };
+
+                        const match = line.match(/^Pregunta:\s*(.*?)\s*Opción Correcta:\s*(.*?)\s*Explicación:\s*(.*)$/);
+                        if (match) {
+                            let qText = match[1].trim();
+                            // Specific fix for the comma in "La génesis del conflicto se sitúa ______"
+                            if (qText.includes('La génesis del conflicto se sitúa ______') && !qText.includes('______,') && qText.includes('en la divergencia')) {
+                                qText = qText.replace('______', '______,');
+                            }
+                            tempQuestion.question = qText.replace('______', '_____'); // Replace placeholder
+
+                            let correctAnswerRaw = match[2].trim();
+                            // Standardize capitalization for 'Ay', 'Ahí', 'Hay' to match button text
+                            if (correctAnswerRaw.toLowerCase() === 'ay') {
+                                correctAnswerRaw = 'Ay';
+                            } else if (correctAnswerRaw.toLowerCase() === 'ahí') {
+                                correctAnswerRaw = 'Ahí';
+                            } else if (correctAnswerRaw.toLowerCase() === 'hay') {
+                                correctAnswerRaw = 'Hay';
+                            } else if (correctAnswerRaw.toLowerCase() === 'ayes') { // Ensure 'ayes' is handled
+                                correctAnswerRaw = 'ayes';
+                            } else if (correctAnswerRaw.toLowerCase() === 'ahíes') { // Ensure 'ahíes' is handled
+                                correctAnswerRaw = 'ahíes';
+                            } else if (correctAnswerRaw.toLowerCase() === 'hayes') { // Ensure 'hayes' is handled
+                                correctAnswerRaw = 'hayes';
+                            }
+                            tempQuestion.correctAnswer = correctAnswerRaw;
+
+                            tempQuestion.explanation = match[3].trim();
+
+                            // Determine options based on the correct answer
+                            if (tempQuestion.correctAnswer.toLowerCase().includes('ayes') || tempQuestion.correctAnswer.toLowerCase().includes('ahíes') || tempQuestion.correctAnswer.toLowerCase().includes('hayes')) {
+                                tempQuestion.options = ["ayes", "ahíes", "hayes"];
+                            } else {
+                                tempQuestion.options = ["Ay", "Ahí", "Hay"];
+                            }
+                        }
+                    } else if (tempQuestion && !line.startsWith('Nivel') && line.length > 0) {
+                        // Append to explanation if it's a continuation and not a new section
+                        tempQuestion.explanation += ' ' + line;
+                    }
+                }
+                if (tempQuestion && currentLevel) {
+                    questions[currentLevel].push(tempQuestion);
+                }
+
+                // Apply de-duplication and specific filtering based on user's latest requests
+                // Renamed from finalQuestions to processedQuestions to avoid potential conflict
+                const processedQuestions = {
+                    basic: [],
+                    intermediate: [],
+                    advanced: []
+                };
+
+                const basicPhrases = [
+                    "¡______! Qué susto me diste.",
+                    "Pon el vaso ______, en la mesa.",
+                    "En el parque ______ niños jugando.",
+                    "¡______! Me he golpeado el dedo.",
+                    "______ que levantarse temprano mañana.",
+                    "______ mucha comida en la nevera.",
+                    "¡______! Qué sorpresa más bonita.",
+                    "¡______! Qué pena que no pudieras venir.",
+                    "En el pueblo ______ una iglesia antigua.",
+                    "Tu móvil está ______, sobre el escritorio.",
+                    "______ bastante ruido en la calle."
+                ];
+
+                // Updated intermediate phrases based on user's last input
+                const intermediatePhrases = [
+                    "Sentí un ______ de alivio al saber que todo había salido bien.",
+                    "La clave de su argumento radica ______, en su lógica impecable.",
+                    "Para dominar un idioma, ______ que sumergirse en su cultura.",
+                    "¡______! Qué dilema tan complejo se nos presenta ahora.",
+                    "El punto de inflexión de la historia fue justo ______, en el momento más crítico.",
+                    "No ______ motivos para dudar de su sinceridad.",
+                    "Los ______ del moribundo se escuchaban en el silencio de la noche.",
+                    "La solución a la ecuación se encuentra ______, tras varias operaciones.",
+                    "En la ciudad ______ una gran diversidad cultural.",
+                    "El error más común se produce ______, al interpretar los datos."
+                ];
+
+                const advancedPhrases = [
+                    "La diferencia sutil entre la interjección y el sustantivo 'ay' reside precisamente ______, en su función sintáctica.",
+                    "Aunque ______ una plétora de teorías, la evidencia empírica es escasa.",
+                    "Los ______ de la filosofía existencialista a menudo abordan la angustia humana.",
+                    "El quid de la cuestión se halla ______, en la antítesis entre lo aparente y lo real.",
+                    "Para una comprensión cabal del fenómeno, ______ que trascender la mera observación.",
+                    "Un ______ de resignación se dibujó en su semblante, denotando la aceptación de lo ineludible.",
+                    "La paradoja inherente a la condición humana se manifiesta justo ______, en la dicotomía entre la libertad y la predestinación.",
+                    "No ______ atisbo de duda en su convicción, a pesar de la adversidad.",
+                    "¡______! Qué abismo de incomprensión se cierne sobre nosotros.",
+                    "La génesis del conflicto se sitúa ______, en la divergencia de intereses antagónicos.",
+                    "______ que discernir entre la retórica falaz y la verdad incontrovertible.",
+                    "Los ______ de la crítica literaria a menudo desentrañan las complejidades del subtexto.",
+                    "La esencia de la dialéctica platónica radica ______, en la búsqueda incesante de la verdad.",
+                    "No ______ óbice alguno que impida la consecución de nuestros objetivos.",
+                    "¡______! Qué laberinto de contradicciones se despliega ante nuestros ojos.",
+                    "La epifanía se produjo justo ______, en el cenit de su introspección."
+                ];
+
+
+                // Filter questions into their respective levels based on the defined phrases
+                questions.basic.forEach(q => {
+                    const cleanQuestion = q.question.replace('_____', '______');
+                    if (basicPhrases.includes(cleanQuestion)) {
+                        processedQuestions.basic.push(q);
+                    }
+                });
+
+                questions.intermediate.forEach(q => {
+                    const cleanQuestion = q.question.replace('_____', '______');
+                    if (intermediatePhrases.includes(cleanQuestion)) {
+                        processedQuestions.intermediate.push(q);
+                    }
+                });
+
+                questions.advanced.forEach(q => {
+                    const cleanQuestion = q.question.replace('_____', '______');
+                    if (advancedPhrases.includes(cleanQuestion)) {
+                        processedQuestions.advanced.push(q);
+                    }
+                });
+
+                return processedQuestions;
+            }
+
+            // Call parseQuestions to populate the allQuestions object
+            Object.assign(allQuestions, parseQuestions(docContent));
+
+            /**
+             * Shows an in-page message with dynamic buttons.
+             * @param {string} message The message to display.
+             * @param {Array<Object>} buttons Array of button configurations { text: string, action: function }.
+             */
+            function showDynamicMessage(message, buttons = []) {
+                dynamicInfoMessage.textContent = message;
+                dynamicActionButtons.innerHTML = ''; // Clear previous buttons
+
+                buttons.forEach(btnConfig => {
+                    const button = document.createElement('button');
+                    button.textContent = btnConfig.text;
+                    button.classList.add('navigation-button');
+                    button.onclick = btnConfig.action; // Directly assign the action
+                    dynamicActionButtons.appendChild(button);
+                });
+            }
+
+            /**
+             * Clears any dynamic messages and buttons.
+             */
+            function clearDynamicMessage() {
+                dynamicInfoMessage.textContent = '';
+                dynamicActionButtons.innerHTML = '';
+            }
+
+            /**
+             * Updates the score and progress bar display.
+             */
+            function updateScoreAndProgress() {
+                correctCountDisplay.textContent = correctCount;
+                incorrectCountDisplay.textContent = incorrectCount;
+
+                const totalQuestions = shuffledQuestions.length;
+                const answeredQuestionsInCurrentLevel = Object.keys(userAnswers).filter(key => userAnswers[key + '_checked']).length;
+
+                if (totalQuestions > 0) {
+                    const progressPercentage = (answeredQuestionsInCurrentLevel / totalQuestions) * 100;
+                    progressBarFill.style.width = `${progressPercentage}%`;
+                } else {
+                    progressBarFill.style.width = '0%';
+                }
+            }
+
+            /**
+             * Loads and displays the current question based on currentLevel and currentQuestionIndex.
+             */
+            function loadQuestion() {
+                clearDynamicMessage(); // Clear any existing dynamic messages
+                overallResultsSummary.classList.add('hidden'); // Hide overall results if visible
+
+                const questions = shuffledQuestions; // Use the shuffled array
+                if (questions.length === 0) {
+                    currentQuestionElem.textContent = "No hay preguntas para este nivel.";
+                    optionsContainer.innerHTML = '';
+                    prevButton.disabled = true;
+                    nextButton.disabled = true;
+                    feedbackMessageElem.innerHTML = ''; // Clear feedback and icon
+                    explanationMessageElem.textContent = ''; // Clear explanation
+                    updateScoreAndProgress(); // Update counts and progress even if no questions
+                    return;
+                }
+
+                const questionData = questions[currentQuestionIndex];
+                questionCounterElem.textContent = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+                currentQuestionElem.textContent = questionData.question;
+                optionsContainer.innerHTML = '';
+                feedbackMessageElem.innerHTML = ''; // Clear feedback and icon
+                explanationMessageElem.textContent = '';
+
+                // Create option buttons
+                questionData.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('option-button');
+                    button.dataset.option = option;
+                    button.onclick = () => selectOption(option);
+                    optionsContainer.appendChild(button);
+                });
+
+                // Restore previous selection if any for the current shuffled question
+                const userAnswer = userAnswers[currentQuestionIndex];
+                if (userAnswer) {
+                    const selectedButton = optionsContainer.querySelector(`[data-option="${userAnswer}"]`);
+                    if (selectedButton) {
+                        selectedButton.classList.add('selected');
+                    }
+                    // If already checked, re-apply feedback and explanation
+                    if (userAnswers[`${currentQuestionIndex}_checked`]) {
+                        checkAnswer(userAnswer, true); // Re-apply feedback without re-checking
+                        // Disable buttons if already answered
+                        optionsContainer.querySelectorAll('.option-button').forEach(btn => btn.disabled = true);
+                    }
+                }
+
+                updateNavigationButtons();
+                updateScoreAndProgress(); // Update score and progress bar
+            }
+
+            /**
+             * Handles the selection of an option by the user.
+             * @param {string} selectedOption The text of the selected option.
+             */
+            function selectOption(selectedOption) {
+                // Clear any dynamic messages first
+                clearDynamicMessage();
+
+                // Disable all options once one is selected
+                optionsContainer.querySelectorAll('.option-button').forEach(button => {
+                    button.disabled = true;
+                    button.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const selectedButton = optionsContainer.querySelector(`[data-option="${selectedOption}"]`);
+                if (selectedButton) {
+                    selectedButton.classList.add('selected');
+                }
+
+                // Only update userAnswers and counts if this question hasn't been answered before
+                if (!userAnswers[`${currentQuestionIndex}_checked`]) {
+                    userAnswers[currentQuestionIndex] = selectedOption; // Store answer by shuffled index
+                    userAnswers[`${currentQuestionIndex}_checked`] = true; // Mark question as checked immediately
+                    checkAnswer(selectedOption, false); // Check and count
+                } else {
+                    // If already answered, just re-apply feedback without re-counting
+                    checkAnswer(selectedOption, true);
+                }
+            }
+
+            /**
+             * Checks the user's selected answer against the correct answer.
+             * @param {string} selectedOption The user's selected option.
+             * @param {boolean} isReload True if called during a question reload, false otherwise.
+             */
+            function checkAnswer(selectedOption, isReload = false) {
+                const questionData = shuffledQuestions[currentQuestionIndex];
+                const isCorrect = (selectedOption === questionData.correctAnswer);
+
+                optionsContainer.querySelectorAll('.option-button').forEach(button => {
+                    button.classList.remove('selected', 'correct', 'incorrect');
+                    if (button.dataset.option === questionData.correctAnswer) {
+                        button.classList.add('correct');
+                    } else if (button.dataset.option === selectedOption) {
+                        button.classList.add('incorrect');
+                    }
+                });
+
+                // Update counts only if not reloading and not already counted for this question
+                if (!isReload) {
+                    if (isCorrect) {
+                        correctCount++;
+                    } else {
+                        incorrectCount++;
+                    }
+                }
+
+                feedbackMessageElem.innerHTML = ''; // Clear previous feedback
+
+                const feedbackText = document.createElement('span');
+                const feedbackIcon = document.createElement('i');
+                feedbackIcon.classList.add('feedback-icon');
+
+                if (isCorrect) {
+                    feedbackText.textContent = "¡Correcto!";
+                    feedbackText.classList.remove('text-red-600');
+                    feedbackText.classList.add('text-green-600');
+                    feedbackIcon.classList.add('fas', 'fa-check-circle', 'correct-icon');
+                } else {
+                    feedbackText.textContent = "Incorrecto.";
+                    feedbackText.classList.remove('text-green-600');
+                    feedbackText.classList.add('text-red-600');
+                    feedbackIcon.classList.add('fas', 'fa-times-circle', 'incorrect-icon');
+                }
+                feedbackMessageElem.appendChild(feedbackText);
+                feedbackMessageElem.appendChild(feedbackIcon);
+
+                // Determine the word to insert, adjusting case if not at the start of the sentence
+                let wordToInsert = questionData.correctAnswer;
+                const placeholderIndex = questionData.question.indexOf('_____');
+                // Check if the placeholder is at the beginning or immediately after a sentence-ending punctuation
+                const isStartOfSentence = placeholderIndex === 0 || (placeholderIndex > 0 && ['.', '!', '?', '¡', '¿'].includes(questionData.question[placeholderIndex - 1].trim()));
+
+                if (!isStartOfSentence) {
+                    wordToInsert = wordToInsert.toLowerCase();
+                }
+
+                const highlightClass = isCorrect ? 'text-green-700' : 'text-red-700';
+                currentQuestionElem.innerHTML = questionData.question.replace('_____', `<span class="${highlightClass} font-bold">${wordToInsert}</span>`);
+
+
+                // Display explanation
+                explanationMessageElem.textContent = questionData.explanation;
+
+                updateScoreAndProgress(); // Update score and progress bar after checking
+
+                // Check if this is the last question of the current level AND it was just answered
+                if (!isReload && currentQuestionIndex === shuffledQuestions.length - 1) {
+                    handleLevelCompletion();
+                }
+            }
+
+            /**
+             * Updates the disabled state of navigation buttons.
+             */
+            function updateNavigationButtons() {
+                prevButton.disabled = currentQuestionIndex === 0;
+                // nextButton.disabled is handled by the end of level logic
+            }
+
+            /**
+             * Handles the logic when a level is completed.
+             */
+            function handleLevelCompletion() {
+                // Accumulate scores to overall totals
+                overallCorrectCount += correctCount;
+                overallIncorrectCount += incorrectCount;
+
+                // Disable options and navigation buttons as level is complete
+                optionsContainer.querySelectorAll('.option-button').forEach(btn => btn.disabled = true);
+                prevButton.disabled = true;
+                nextButton.disabled = true;
+
+
+                const currentLevelName = currentLevel.charAt(0).toUpperCase() + currentLevel.slice(1);
+                const currentLevelIndex = levelOrder.indexOf(currentLevel);
+
+                if (currentLevelIndex < levelOrder.length - 1) {
+                    // Not the last level
+                    showDynamicMessage(
+                        `¡Felicidades! Has completado el Nivel ${currentLevelName}. Puedes seleccionar el siguiente nivel arriba para continuar.`
+                    );
+                } else {
+                    // Last level completed
+                    showDynamicMessage(
+                        `¡Enhorabuena! Has completado todos los niveles y dominado 'Ay, Ahí y Hay'. ¡Eres un/a campeón/a de la ortografía!`
+                    );
+                }
+                displayOverallResults(); // Show overall results immediately after level completion message
+            }
+
+
+            /**
+             * Displays the overall test results.
+             */
+            function displayOverallResults() {
+                // Show overall results summary
+                overallResultsSummary.classList.remove('hidden');
+                overallCorrectDisplay.textContent = overallCorrectCount;
+                overallIncorrectDisplay.textContent = overallIncorrectCount;
+            }
+
+            /**
+             * Resets the test for the current level (used when switching levels or restarting current level).
+             */
+            function resetTest() {
+                currentQuestionIndex = 0;
+                correctCount = 0;
+                incorrectCount = 0;
+                userAnswers = {}; // Clear all answers for the new shuffled sequence
+
+                // Create a copy of the questions for the current level and shuffle it
+                shuffledQuestions = [...allQuestions[currentLevel]];
+                shuffleArray(shuffledQuestions);
+
+                // Ensure test elements are visible and overall results are hidden
+                testArea.classList.remove('hidden');
+                overallResultsSummary.classList.add('hidden'); // Hide overall results if visible
+
+                loadQuestion(); // This will also clear dynamic messages and make test elements visible
+            }
+
+            /**
+             * Resets all test progress and restarts from the basic level.
+             */
+            function restartAllTests() {
+                overallCorrectCount = 0;
+                overallIncorrectCount = 0;
+                currentLevel = 'basic'; // Reset to basic level
+                levelButtons.forEach(btn => {
+                    if (btn.dataset.level === 'basic') {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                overallResultsSummary.classList.add('hidden'); // Hide overall results
+                resetTest(); // This will load the first question of the basic level
+            }
+
+
+            // Event Listeners for navigation
+            prevButton.addEventListener('click', () => {
+                clearDynamicMessage(); // Clear any dynamic messages when navigating
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    loadQuestion();
+                }
+            });
+
+            nextButton.addEventListener('click', () => {
+                // Ensure the current question has been answered before moving next
+                if (!userAnswers[`${currentQuestionIndex}_checked`]) {
+                    showDynamicMessage("Por favor, selecciona una opción antes de continuar.");
+                    return;
+                }
+
+                // If it's the last question, handleLevelCompletion is already called by checkAnswer
+                if (currentQuestionIndex < shuffledQuestions.length - 1) {
+                    clearDynamicMessage(); // Clear any dynamic messages when navigating
+                    currentQuestionIndex++;
+                    loadQuestion();
+                }
+                // If it's the last question and already answered, no action needed for next button click
+            });
+
+            // Event Listeners for level selection
+            levelButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetLevel = button.dataset.level;
+                    if (targetLevel === currentLevel) {
+                        clearDynamicMessage(); // If already on this level, just clear messages
+                        return;
+                    }
+
+                    // No confirmation needed, just switch levels
+                    levelButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    currentLevel = targetLevel;
+                    resetTest();
+                });
+            });
+
+            restartAllButton.addEventListener('click', restartAllTests);
+
+            // Initial load of the test when the window loads
+            window.onload = resetTest;
+        })(); // IIFE ends here
+    </script>
+</body>
+</html>
