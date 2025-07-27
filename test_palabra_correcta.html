@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Ortografía: Correcta o Incorrecta</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Un color de fondo suave */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .option-button {
+            background: linear-gradient(145deg, #e2f0ff, #cce0ff); /* Degradado en botones */
+            color: #1a202c;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 600; /* Fuente más negrita para opciones */
+            cursor: pointer;
+            transition: all 0.2s ease-in-out; /* Transición más general */
+            border: 2px solid transparent;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .option-button:hover:not(.selected):not(.correct):not(.incorrect):not(:disabled) {
+            background: linear-gradient(145deg, #cce0ff, #b3d4ff);
+            transform: translateY(-3px) scale(1.01); /* Resalte más pronunciado */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+        .option-button.selected {
+            background: linear-gradient(145deg, #93c5fd, #60a5fa); /* Degradado azul */
+            border-color: #3b82f6; /* Blue-500 */
+            color: #1e40af; /* Blue-800 */
+            box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4);
+        }
+        .option-button.correct {
+            background: linear-gradient(145deg, #81c784, #4CAF50); /* Degradado verde vibrante */
+            border-color: #4CAF50; /* Verde más oscuro */
+            color: #000000; /* Texto en negro para la opción correcta */
+            box-shadow: 0 3px 8px rgba(76, 175, 80, 0.4);
+            animation: pulseCorrect 0.5s ease-out; /* Animación de feedback */
+        }
+        .option-button.incorrect {
+            background: linear-gradient(145deg, #fee2e2, #fca5a5); /* Degradado rojo */
+            border-color: #ef4444; /* Red-500 */
+            color: #991b1b; /* Red-800 */
+            box-shadow: 0 3px 8px rgba(239, 68, 68, 0.4);
+            animation: shakeIncorrect 0.5s ease-out; /* Animación de feedback */
+        }
+        .option-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+
+        @keyframes pulseCorrect {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        @keyframes shakeIncorrect {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        .navigation-button {
+            background: linear-gradient(145deg, #3b82f6, #2563eb); /* Degradado azul */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 3px 8px rgba(59, 130, 246, 0.3);
+        }
+        .navigation-button:hover {
+            background: linear-gradient(145deg, #2563eb, #1d4ed8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(59, 130, 246, 0.4);
+        }
+        .navigation-button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: translateY(0);
+        }
+
+        /* Custom Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+        }
+        .modal-close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: #aaa;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .modal-close-button:hover,
+        .modal-close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Sección de encabezado para alineación */
+        .header-section {
+            display: flex;
+            align-items: center; /* Centrar verticalmente los elementos */
+            justify-content: flex-start; /* Alinear elementos al inicio (izquierda) */
+            width: 100%; /* Ocupar todo el ancho del contenedor */
+            margin-bottom: 1rem; /* Espacio debajo del encabezado */
+        }
+
+        h1 {
+            color: #2c3e50; /* Color de título más oscuro */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+            margin: 0; /* Reiniciar márgenes predeterminados de h1 dentro de flex */
+            font-size: 2.5rem; /* Tamaño predeterminado para pantallas grandes */
+            flex-grow: 1; /* Permitir que h1 crezca y ocupe el espacio disponible */
+            text-align: center; /* Centrar el texto dentro del espacio de h1 */
+            margin-left: 2rem; /* Añadir margen izquierdo para alejar el texto del icono */
+        }
+
+        /* Estilos específicos del botón de inicio */
+        .home-button-icon {
+            font-size: 1.8rem; /* Tamaño del icono */
+            color: #3b82f6; /* Color azul */
+            transition: color 0.2s ease-in-out;
+            z-index: 10; /* Asegurar que esté por encima de otro contenido */
+            margin-right: 1rem; /* Espacio entre el icono y el título */
+            flex-shrink: 0; /* Evitar que el icono se encoja */
+        }
+        .home-button-icon:hover {
+            color: #2563eb; /* Azul más oscuro al pasar el ratón */
+        }
+
+        /* Media query para pantallas más pequeñas: ajustar posición del botón de inicio y tamaño del título */
+        @media (max-width: 639px) {
+            .home-button-icon {
+                font-size: 1.5rem;
+                margin-right: 0.5rem; /* Ajustar margen para pantallas más pequeñas */
+            }
+            .container {
+                padding: 1.5rem; /* Reducir el padding en pantallas pequeñas */
+            }
+            .header-section {
+                margin-bottom: 0.5rem; /* Menos espacio en pantallas pequeñas */
+            }
+            h1 {
+                font-size: 2rem; /* Tamaño de fuente más pequeño para el título en móvil */
+                margin-left: 1.5rem; /* Ajustar margen para pantallas más pequeñas */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Nueva Sección de Encabezado para el Botón de Inicio y el Título -->
+        <div class="header-section">
+            <a href="index.html" class="home-button-icon" title="Volver al listado de tests">
+                <i class="fas fa-home"></i>
+            </a>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-4 leading-tight">
+                Test de Ortografía: Correcta o Incorrecta
+            </h1>
+        </div>
+        <p class="text-md text-gray-600 mb-6">
+            Comprueba tu habilidad para identificar la ortografía precisa de cada término.
+        </p>
+
+        <!-- Test Area -->
+        <div id="test-area">
+            <p id="question-counter" class="text-sm text-gray-500 mb-4"></p>
+            <p id="current-word" class="text-4xl font-extrabold text-gray-900 mb-6"></p>
+
+            <div id="options-container" class="grid grid-cols-2 gap-4 mb-6">
+                <button class="option-button" data-option="correcta">Correcta</button>
+                <button class="option-button" data-option="incorrecta">Incorrecta</button>
+            </div>
+
+            <div id="feedback-message" class="text-lg font-bold mt-4 mb-2" style="min-height: 1.5em;"></div>
+            <div id="explanation-message" class="text-md text-gray-700 mt-2 mb-4"></div>
+
+            <div class="flex justify-between gap-4">
+                <button id="prev-button" class="navigation-button">Anterior</button>
+                <button id="next-button" class="navigation-button">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Results Area -->
+        <div id="results-area" class="hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Resultados del Test</h2>
+            <p id="score-display" class="text-2xl text-gray-700 mb-6"></p>
+            <button id="restart-button" class="navigation-button bg-blue-600 hover:bg-blue-700">Reiniciar Test</button>
+        </div>
+    </div>
+
+    <!-- Custom Modal for messages -->
+    <div id="custom-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-button" id="modal-close">&times;</span>
+            <p id="modal-message" class="text-lg text-gray-800"></p>
+            <button id="modal-ok-button" class="navigation-button mt-6">OK</button>
+        </div>
+    </div>
+
+    <script>
+        (function() { // IIFE starts here to create a new scope
+            // Custom Modal Logic
+            const customModal = document.getElementById('custom-modal');
+            const modalMessage = document.getElementById('modal-message');
+            const modalCloseBtn = document.getElementById('modal-close');
+            const modalOkBtn = document.getElementById('modal-ok-button');
+
+            function showModal(message) {
+                modalMessage.textContent = message;
+                customModal.style.display = 'flex';
+            }
+
+            function hideModal() {
+                customModal.style.display = 'none';
+            }
+
+            modalCloseBtn.onclick = hideModal;
+            modalOkBtn.onclick = hideModal;
+            window.onclick = function(event) {
+                if (event.target == customModal) {
+                    hideModal();
+                }
+            };
+
+            const docContent = `
+Contenido del Test de Ortografía
+A continuación, se presenta la lista completa de palabras incluidas en el test de ortografía, junto con su estado de corrección y una explicación detallada para cada una.
+1. Vislumbrar
+Correcto:  Sí
+Explicación:  Se escribe con 'v' y 's'. Significa ver un objeto confusamente por la distancia o falta de luz, o percibir una idea o un hecho sin llegar a comprenderlo del todo.
+2. Wifi
+Correcto:  Sí
+Explicación:  La Real Academia Española (RAE) ha adaptado la voz inglesa 'Wi-Fi' al español como 'wifi', que se escribe en una sola palabra y sin guion ni mayúsculas. Es una palabra llana terminada en vocal, por lo que no lleva tilde.
+3. Curento
+Correcto:  No
+Explicación:  La forma correcta es 'cuento'. 'Curento' es una falta de ortografía común que omite la 'o' en la primera sílaba.
+4. Efimero
+Correcto:  No
+Explicación:  La palabra correcta es 'efímero', que significa 'de corta duración'. Es una palabra esdrújula, por lo que siempre lleva tilde en la antepenúltima sílaba, en este caso, en la 'i'.
+5. Inverbe
+Correcto:  No
+Explicación:  La palabra correcta es 'imberbe', que significa 'que todavía no tiene barba o que carece de ella'. Según las reglas ortográficas del español, se escribe 'm' antes de 'b' y 'p'.
+6. Infestado
+Correcto:  Sí
+Explicación:  La palabra 'infestado' es correcta. Significa 'invadido por seres vivos perjudiciales' o 'lleno de algo que molesta o daña'. Se escribe con 'n' antes de 'f'.
+7. Papichulo
+Correcto:  Sí
+Explicación:  La palabra 'papichulo' es un neologismo de uso coloquial, aceptado por la RAE, que se refiere a un hombre atractivo, especialmente si se exhibe como tal.
+8. Pirrico
+Correcto:  No
+Explicación:  La palabra correcta es 'pírrico', que se refiere a una victoria lograda con un coste tan alto que no compensa el resultado. Es una palabra esdrújula, por lo que siempre lleva tilde en la antepenúltima sílaba, en este caso, en la primera 'i'.
+9. Maltraer
+Correcto:  Sí
+Explicación:  La palabra 'maltraer' es correcta y significa 'tratar mal a alguien'. Es un verbo que se forma con el prefijo 'mal-' y el verbo 'traer'.
+10. Preminente
+Correcto:  Sí
+Explicación:  Ambas formas, 'preminente' y 'preeminente', son correctas y significan 'que sobresale o es superior'. 'Preeminente' es la forma más común y etimológica, pero 'preminente' también es válida.
+11. Operante
+Correcto:  Sí
+Explicación:  La palabra 'operante' es correcta. Es el participio activo del verbo 'operar' y se utiliza como adjetivo para describir algo que opera o está en funcionamiento.
+12. Rebelar
+Correcto:  Sí
+Explicación:  La palabra 'rebelar' es correcta y significa 'sublevarse o levantarse contra la autoridad'. Es importante no confundirla con 'revelar', que significa 'descubrir o manifestar algo'.
+13. Buenismo
+Correcto:  Sí
+Explicación:  La palabra 'buenismo' es un neologismo aceptado por la RAE que se refiere a una actitud de bondad ingenua o excesiva, a menudo criticada por su falta de realismo o pragmatismo.
+14. Tuit
+Correcto:  Sí
+Explicación:  La RAE ha adaptado la voz inglesa 'tweet' al español como 'tuit', que se refiere a un mensaje publicado en la red social Twitter. Se escribe sin tilde por ser monosílaba.
+15. Kínder
+Correcto:  Sí
+Explicación:  La palabra 'kínder' es correcta. Procede del alemán 'Kindergarten' (jardín de niños) y se refiere a un tipo de escuela infantil. Es una palabra llana terminada en 'r', por lo que lleva tilde en la 'i'.
+16. Cliquear
+Correcto:  Sí
+Explicación:  La palabra 'cliquear' es correcta y significa 'hacer clic con el ratón'. Es una adaptación del verbo inglés 'to click'.
+17. Poliandría
+Correcto:  Sí
+Explicación:  La palabra 'poliandría' es correcta y se refiere a la condición de la mujer casada simultáneamente con varios hombres.
+18. Chusnear
+Correcto:  Sí
+Explicación:  Ambas formas, 'chusnear' y 'chusmear', son correctas y se usan en diferentes regiones para referirse a 'cotillear', 'curiosear' o 'husmear'.
+19. Baul
+Correcto:  No
+Explicación:  La palabra correcta es 'baúl'. Lleva tilde en la 'ú' porque forma un hiato (separación de vocales) con la 'a', rompiendo el diptongo que se formaría si no llevara tilde.
+20. Single
+Correcto:  Sí
+Explicación:  La palabra 'single' es correcta. Es un anglicismo que se refiere a una canción o disco que contiene una sola pieza musical.
+21. Suéter
+Correcto:  Sí
+Explicación:  La palabra 'suéter' es correcta. Es una adaptación del inglés 'sweater' y se refiere a una prenda de vestir. Es una palabra llana terminada en 'r', por lo que lleva tilde en la 'e'.
+22. Vallenato
+Correcto:  Sí
+Explicación:  La palabra 'vallenato' es correcta y se refiere a un género musical folclórico originario de la región Caribe de Colombia.
+23. Agovio
+Correcto:  No
+Explicación:  La palabra correcta es 'agobio', con 'b'. Significa 'sensación de gran molestia o fatiga'.
+24. Clicar
+Correcto:  Sí
+Explicación:  La palabra 'clicar' es correcta y es sinónimo de 'cliquear', significando 'hacer clic con el ratón'.
+25. Aporofobia
+Correcto:  Sí
+Explicación:  La palabra 'aporofobia' es correcta. Es un neologismo que significa 'aversión, miedo u odio a la pobreza o a las personas pobres'.
+26. Táper
+Correcto:  Sí
+Explicación:  La RAE ha adaptado la marca 'Tupperware' al español como 'táper', que se refiere a un recipiente hermético para guardar alimentos. Es una palabra llana terminada en 'r', por lo que lleva tilde en la 'a'.
+27. Postureo
+Correcto:  Sí
+Explicación:  La palabra 'postureo' es un neologismo aceptado por la RAE que se refiere a la actitud de adoptar poses o comportamientos para aparentar algo que no se es.
+28. Chakra
+Correcto:  Sí
+Explicación:  La palabra 'chakra' es correcta. Procede del sánscrito y se refiere a los centros de energía del cuerpo, según algunas tradiciones orientales.
+29. Susanación
+Correcto:  No
+Explicación:  La palabra correcta es 'subsanación', con 'b'. Significa 'acción y efecto de subsanar', es decir, de corregir o reparar un error o defecto.
+30. Escáner
+Correcto:  Sí
+Explicación:  La palabra 'escáner' es correcta. Es una adaptación del inglés 'scanner' y se refiere a un aparato que digitaliza imágenes o documentos. Es una palabra llana terminada en 'r', por lo que lleva tilde en la 'a'.
+31. Digirir
+Correcto:  No
+Explicación:  La palabra correcta es 'digerir', con 'g'. Significa 'transformar los alimentos en el aparato digestivo' o 'asimilar ideas o información'.
+32. Patizambo
+Correcto:  Sí
+Explicación:  La palabra 'patizambo' es correcta y se refiere a una persona que tiene las piernas torcidas hacia afuera.
+33. Homeopata
+Correcto:  No
+Explicación:  La palabra correcta es 'homeópata', que se refiere a la persona que practica la homeopatía. Es una palabra esdrújula, por lo que siempre lleva tilde en la antepenúltima sílaba, en este caso, en la 'o'.
+34. Agorofobia
+Correcto:  No
+Explicación:  La palabra correcta es 'agorafobia', sin la primera 'o'. Significa 'miedo a los espacios abiertos o a las multitudes'.
+35. Fratricida
+Correcto:  Sí
+Explicación:  La palabra 'fratricida' es correcta y se refiere a la persona que mata a su hermano o hermana.
+36. Camposanto
+Correcto:  Sí
+Explicación:  La palabra 'camposanto' es correcta y se refiere a un cementerio. Es una palabra compuesta que se escribe unida.
+37. Reditar
+Correcto:  No
+Explicación:  La palabra correcta es 'reeditar', con doble 'e'. Significa 'volver a editar' o 'volver a poner en circulación'.
+38. Cras
+Correcto:  No
+Explicación:  Si se refiere a 'crass' como anglicismo (por ejemplo, en 'crass humor'), no es una palabra española. Si se refiere al adjetivo 'craso', que significa 'grueso' o 'grande' (como en 'craso error'), entonces 'cras' es incorrecto.
+39. Cuasidelito
+Correcto:  Sí
+Explicación:  La palabra 'cuasidelito' es correcta. Se refiere a un acto ilícito que causa daño a otro, pero sin la intención de dañar, a diferencia de un delito.
+40. Casoplón
+Correcto:  Sí
+Explicación:  La palabra 'casoplón' es correcta. Es un aumentativo de 'casa' y se refiere a una casa muy grande y lujosa.
+41. Periodo
+Correcto:  Sí
+Explicación:  Ambas acentuaciones son válidas según la RAE. 'Periodo' es la forma llana, y 'período' es la forma esdrújula, ambas aceptadas.
+42. LGTBI
+Correcto:  Sí
+Explicación:  La sigla 'LGTBI' es correcta y se refiere a Lesbianas, Gais, Transgénero, Bisexuales e Intersexuales. Se escribe en mayúsculas y sin puntos.
+43. Ciberataque
+Correcto:  Sí
+Explicación:  La palabra 'ciberataque' es correcta. Se refiere a un ataque informático o a través de la red.
+44. Master
+Correcto:  No
+Explicación:  La palabra correcta es 'máster', que se refiere a un título de posgrado. Es una palabra llana terminada en 'r', por lo que lleva tilde en la 'a'.
+45. Diligenciar
+Correcto:  Sí
+Explicación:  La palabra 'diligenciar' es correcta y significa 'realizar o ejecutar con diligencia un trámite o negocio'.
+46. Atestar
+Correcto:  Sí
+Explicación:  La palabra 'atestar' es correcta y significa 'llenar o henchir algo en exceso' o 'dar testimonio de algo'.
+47. Cútter
+Correcto:  Sí
+Explicación:  La palabra 'cúter' es correcta. Es una adaptación del inglés 'cutter' y se refiere a una cuchilla. Es una palabra esdrújula, por lo que siempre lleva tilde en la antepenúltima sílaba, en este caso, en la 'u'.
+48. Gay
+Correcto:  Sí
+Explicación:  La palabra 'gay' es correcta y se refiere a una persona homosexual. Es un anglicismo aceptado por la RAE.
+49. Hacendado
+Correcto:  Sí
+Explicación:  La palabra 'hacendado' es correcta y se refiere al propietario de una hacienda o finca.
+50. Bruxismo
+Correcto:  Sí
+Explicación:  La palabra 'bruxismo' es correcta. Se refiere al hábito involuntario de apretar o rechinar los dientes.
+51. Subscribir
+Correcto:  No
+Explicación:  La palabra correcta es 'suscribir', sin la 'b' intermedia. Significa 'firmar al pie de un escrito' o 'abonarse a una publicación'.
+52. Selfi
+Correcto:  Sí
+Explicación:  La RAE ha adaptado la voz inglesa 'selfie' al español como 'selfi', que se refiere a una fotografía que uno se toma a sí mismo.
+53. Hosamenta
+Correcto:  No
+Explicación:  La palabra correcta es 'osamenta', sin 'h'. Significa 'conjunto de huesos de un esqueleto'.
+54. Alvoroto
+Correcto:  No
+Explicación:  La palabra correcta es 'alboroto', con 'b'. Significa 'desorden, tumulto o jaleo'.
+55. Viceversa
+Correcto:  Sí
+Explicación:  La palabra 'viceversa' es correcta y significa 'al contrario' o 'a la inversa'.
+56. Escrache
+Correcto:  Sí
+Explicación:  La palabra 'escrache' es correcta. Es un neologismo que se refiere a una manifestación de protesta ruidosa y pública frente al domicilio o lugar de trabajo de alguien.
+57. Tissú
+Correcto:  No
+Explicación:  La palabra correcta es 'tisú', con una sola 's' y tilde en la 'u' por ser una palabra aguda terminada en vocal. Se refiere a un tejido muy fino.
+58. Suptrama
+Correcto:  No
+Explicación:  La palabra correcta es 'subtrama', con 'b'. Se refiere a una trama secundaria dentro de una obra principal.
+59. Condor
+Correcto:  No
+Explicación:  La palabra correcta es 'cóndor'. Es una palabra esdrújula, por lo que siempre lleva tilde en la antepenúltima sílaba, en este caso, en la primera 'o'.
+60. Cañamo
+Correcto:  No
+Explicación:  La palabra correcta es 'cáñamo'. Es una palabra esdrújula, por lo que siempre lleva tilde en la antepenúltima sílaba, en este caso, en la primera 'a'.
+61. Viagra
+Correcto:  Sí
+Explicación:  La palabra 'Viagra' es correcta. Es un nombre propio de un medicamento, por lo que se escribe con mayúscula inicial.
+62. Enrredo
+Correcto:  No
+Explicación:  Después de 'l', 'n', 's', solo se escribe una erre: 'enredo', 'alrededor', 'trasroscarse'. Esto es de primero de Primaria. Lo bueno que tienen faltas como esta es que son automáticas: en cuanto te encuentres algo así en el examen, puedes marcarlo como incorrecto sin necesidad de mirar nada más.
+63. Hipótesis
+Correcto:  Sí
+Explicación:  Una hipótesis es una suposición que tomamos como base para llegar a unas conclusiones, por ejemplo: Estamos trabajando con la hipótesis de que no es un suicidio sino un asesinato. El ejemplo anterior lo que nos da a entender es que hay unas personas que están trabajando con la suposición de que se ha producido un asesinato y a partir de ahí van a intentar aclarar qué es lo que realmente ha sucedido. El Diccionario de la lengua española también registra la variante antigua 'hipótesi'. Eso no es aceptable en el uso actual, pero tiene que estar en el diccionario porque aparece en textos antiguos. El elemento 'hipo-' es una raíz griega que significa 'debajo'; por su parte, 'tesis', también de origen griego, significa 'colocar'. La hipótesis es lo que se coloca debajo de todos nuestros argumentos y razonamientos para que les sirva de base. Ese elemento 'hipo-' es el mismo que encontrarás con el valor de '(por) debajo, inferior, escaso' en palabras como 'hipotermia', 'hipoglucemia', 'hipotensión', etc. Regla: Se escriben con hache las palabras que comienzan con el prefijo griego 'hipo-' ('debajo').
+64. Indigente
+Correcto:  Sí
+Explicación:  Una persona indigente es una persona pobre, necesitada. Regla: Las palabras que terminan en -gencia/-gente se escriben con ge, como 'indigente', 'turgente', 'astringente', etc. La única excepción es 'majencia' ('cualidad de majo').
+65. Abrumante
+Correcto:  Sí
+Explicación:  Algo abrumante es algo que abruma, es decir, que agobia. Regla: El sonido [b] se representa con la letra be si a continuación viene otra consonante. Esto es lo que ocurre en 'abrumante' y también en 'abdominal', 'hablar', 'subvención', etc. La excepción es 'ovni', que se formó con las iniciales de 'objeto volante no identificado'.
+66. Avorigen
+Correcto:  No
+Explicación:  Lo correcto es 'aborigen'. Las palabras que empiezan por 'abo-' suelen escribirse con be. No te lo doy como regla pura y dura porque hay bastantes excepciones, pero te puede servir de orientación.
+67. Fingir
+Correcto:  Sí
+Explicación:  Regla: Los verbos terminados en -gir se escriben con ge, quitando 'crujir'. Además están 'grujir' y 'brujir', que significan 'pulir los bordes de los vidrios después de cortarlos con el diamante'. No son de uso frecuente, pero están ahí.
+68. Envalaje
+Correcto:  No
+Explicación:  Embalaje viene de bala. Vamos a ver todo el recorrido que hay desde una palabra hasta la otra. Las balas que nos interesan aquí son las de paja (¡ojo!). Una bala es un paquete de paja y, en general, es cualquier fardo de mercancías que van bien colocadas y apretadas. Embalar es formar una bala en este sentido de 'paquete'. Y embalaje es la acción de embalar o también el material necesario para embalar algo. Aparte de esto, embalaje tiene su regla: las palabras que terminan en -aje se escriben con jota, por ejemplo, 'embalaje', 'pasaje', 'bricolaje', etc. Las excepciones son 'ambages' (que se usa en la expresión 'decir algo sin ambages', 'decirlo directamente') y, además, dos figuras retóricas: 'hipálage' y 'enálage'.
+69. Halal
+Correcto:  Sí
+Explicación:  Halal es un arabismo que se aplica a los alimentos que respetan las prescripciones del islam. Se estrenó en el Diccionario de la lengua española en 2017. Este es uno de los casos en que la hache se pronuncia. Esta palabra se pronuncia con el mismo sonido jota que encontrarás en 'hachís' o 'hámster', que también son préstamos de otras lenguas.
+70. Indemne
+Correcto:  Sí
+Explicación:  Indemne es un adjetivo que significa 'sin daño'. Es familia de 'indemnización' y 'damnificado'. Todas estas palabras contienen el grupo consonántico culto -mn-. Lo mejor que puedes hacer para recordar su escritura es pronunciarlo debidamente: primero una eme y después una ene. Todas estas palabras pertenecen a la lengua culta. Salieron del latín damnum. Por la vía popular salió el castellano daño, donde puedes apreciar que el grupo -mn- se convirtió en eñe.
+71. Extrangular
+Correcto:  No
+Explicación:  La grafía correcta es 'estrangular'. En España, lo más habitual es que la equis la pronunciemos como una simple ese cuando va seguida de otra consonante. Por ejemplo, 'extraño' suena [estráño]. Esto no solo es correcto, sino que es lo más adecuado casi siempre (en el caso de los hablantes de España). Es la pronunciación clásica y sería una pena que se perdiera por las reformas ortográficas de la RAE. El problema es que después nos surgen dudas con esas equis y podemos incurrir fácilmente en ultracorrección, o sea, podemos meter una equis donde no toca. Ahí estaba el quid de esta pregunta.
+72. Reprobar
+Correcto:  Sí
+Explicación:  Reprobar es 'no aprobar, dar algo por malo'. Es de la familia de 'prueba', 'aprobar', etc.
+73. Chat
+Correcto:  Sí
+Explicación:  Esto es un anglicismo que entró en nuestro idioma con la informática. No hay necesidad de resaltarlo en cursiva porque se considera que ya está integrado en nuestro vocabulario. El Diccionario de la lengua española registra también como derivados 'chatear' y 'chateo'. Estas dos formas ya existían, pero tenían que ver con beber chatos de vino. Ahora se ha ampliado su significado.
+74. Divisa
+Correcto:  Sí
+Explicación:  Esto puede ser una forma del verbo 'divisar' ('ver') o un sustantivo que se aplica a las monedas extranjeras, por ejemplo: El dólar es la divisa internacional por excelencia. Regla: Detrás de la sílaba inicial 'di-', el sonido [b] se representa con uve, como en 'divisa', 'divagar', 'divergencia', etc. Las excepciones son 'dibujo' (con todos sus derivados) y 'dibranquial', aunque aquí la be se explica porque la palabra se forma a partir de 'branquia'.
+75. Berter
+Correcto:  No
+Explicación:  Verter se escribe con uve. Si le pusiste una be, has derramado las enseñanzas ortográficas que recibiste en el colegio.
+76. Monoparental
+Correcto:  Sí
+Explicación:  Monoparental es un adjetivo que se refiere a las familias que están formadas por los hijos y un solo progenitor. Este término tiene su artículo en el Diccionario de la lengua española, pero, en general, el problema con palabras recientes como esta es que no es fácil saber si ya han entrado al diccionario o si están todavía en la sala de espera.
+77. Prevaler
+Correcto:  Sí
+Explicación:  Este verbo se usa sobre todo en su forma reflexiva: 'prevalerse'. Significa 'aprovecharse de algo, de alguna circunstancia', por ejemplo, alguien puede prevalerse de su condición de alcalde de un lugar para intimidar a los vecinos (¡espero que no!). Se deriva de 'valer' y por eso conserva la uve. Regla: Se escriben con uve los verbos 'mover', 'valer', 'venir', 'ver', 'volar' y todas las palabras de sus respectivas familias.
+78. Autofoto
+Correcto:  Sí
+Explicación:  Autofoto es la castellanización que han propuesto las Academias de la Lengua para 'selfi' (sí, 'selfi', esa forma también está registrada en el Diccionario de la lengua española). Ya veremos el éxito que tiene el invento.
+79. Prebentivo
+Correcto:  No
+Explicación:  Prevenir se deriva de 'venir'. De ahí la uve. Regla: Se escriben con uve los verbos 'mover', 'valer', 'venir', 'ver', 'volar' y todas las palabras de sus respectivas familias.
+80. Meme
+Correcto:  Sí
+Explicación:  Pues sí, los memes que tanto te divierten también tienen cabida en el diccionario. La palabra 'meme' la acuñó el biólogo británico Richard Dawkins. La escribió por primera vez en su libro El gen egoísta (1976). Desde el inglés se extendió rápidamente a las otras lenguas del mundo, incluida la nuestra. No hay necesidad de destacarla en cursiva porque se considera que está perfectamente integrada en el vocabulario del español.
+81. Ventitrés
+Correcto:  No
+Explicación:  La forma correcta es 'veintitrés'. Lo otro es el reflejo de una pronunciación popular que no es normativa. Fíjate también en que los números que van de 21 a 29 se escriben en una sola palabra cuando se desarrollan en letra: 'veintiuno', 'veintidós', etc.
+82. Vello
+Correcto:  Sí
+Explicación:  El vello es todo el pelo que nos crece a las personas fuera de la cabeza. No es lo mismo que 'bello' ('hermoso').
+83. Barvecho
+Correcto:  No
+Explicación:  El barbecho son las tierras que se dejan sin cultivar para que se recuperen. Es 'barbecho' (con dos bes). Si te sirve de ayuda, puedes pensar en 'barba' para recordar la grafía.
+84. Empoderamiento
+Correcto:  Sí
+Explicación:  Esta es una vieja palabra castellana que se ha visto revitalizada en las últimas décadas por los movimientos sociales, sobre todo, el feminismo. Empoderar es dar poder a personas y grupos desfavorecidos. A efectos del examen, la dificultad de términos como estos no reside en la ortografía, sino en saber si están recogidos en el diccionario. Tanto 'empoderar' como 'empoderamiento' lo están.
+85. Bergel
+Correcto:  No
+Explicación:  Un vergel es un huerto con abundancia de flores y frutales. Esta palabra es familia lejana de 'verde', lo que explica la uve.
+86. Marjinal
+Correcto:  No
+Explicación:  De 'margen', tenemos 'marginal'. Las dos con ge, por favor. Esta palabra apareció en el examen de la Policía Nacional de 2019 y en el de la Guardia Civil de 2008.
+87. Orrendo
+Correcto:  No
+Explicación:  Es verdaderamente horrendo escribir esta palabra sin hache; sobre todo, si tenemos en cuenta que es de la familia de 'horror'. Algo horrendo es algo que produce horror. Regla: Las palabras que empiezan por 'horr-' se escriben con hache, como 'horrendo', 'horripilante' ('que le pone a uno los pelos de punta'), 'horrísono' ('que causa espanto con su sonido'), etc. La regla funciona incluso cuando la secuencia inicial es 'hórr-' (con tilde), como en 'hórreo'. Además, no hay excepciones (así da gusto).
+88. Feminicidio
+Correcto:  Sí
+Explicación:  Este sustantivo se refiere a una cruel y detestable realidad. Esperemos que algún día podamos retirar la palabra del diccionario porque haya desaparecido la necesidad de decirla. Atención, hablantes ceceantes y seseantes, esta regla os interesa: se escribe con ce el elemento -cidio con el significado de 'matar', como en 'feminicidio', 'suicidio', 'arboricidio', etc.
+89. Vendecir
+Correcto:  No
+Explicación:  Bendecir es un verbo que contiene la raíz de bien. Regla: Se escriben con be los compuestos que contienen la palabra 'bien' o su variante 'ben-', como en 'bienaventurado', 'bienmesabe', 'bendecir', 'benevolente', 'parabién' ('felicitación'), 'requetebién', 'también', etc.
+90. Viralizar
+Correcto:  Sí
+Explicación:  Viralizar es 'hacer viral'. Así se dice y así lo recoge el diccionario.
+91. Bestigio
+Correcto:  No
+Explicación:  Vestigio es de la familia de investigar.
+92. LLaga
+Correcto:  No
+Explicación:  Cuando una palabra empieza por 'll-', solo se pone en mayúscula la primera ele (si es que le corresponde). Por tanto, debemos escribir 'Llaga'. Lo mismo vale para las palabras que empiezan por 'ch-', como 'Chinchón', que es un pueblo de la provincia de Madrid famoso por su anís. Se puede utilizar 'chinchón' como sinónimo de la bebida anís, pero en ese caso pasa a escribirse con minúscula (a no ser que le corresponda llevar mayúscula por aparecer en posición inicial, por ejemplo).
+93. Payo
+Correcto:  Sí
+Explicación:  Payo, -a es la palabra que se utiliza para referirse a quien no es gitano.
+94. Omónimo
+Correcto:  No
+Explicación:  Homónimo significa 'que tiene el mismo nombre (que otra cosa)'. El prefijo 'homo-' aporta aquí el significado de 'igual'. Es el mismo que encontrarás en 'homosexual', 'homologar', 'homogéneo', etc. Regla: Se escriben con hache las palabras que empiezan por el prefijo 'homo-' con el significado de 'igual'.
+95. Erigir
+Correcto:  Sí
+Explicación:  Erigir(se) es 'levantar(se)'. De ahí es de donde sale erección. Regla: Los verbos que acaban en -gir se escriben con ge, quitando 'crujir', 'grujir' y 'brujir'.
+96. Hummus
+Correcto:  Sí
+Explicación:  El hummus es una pasta de garbanzos con sésamo y otros ingredientes. A mí me sale riquísimo. Se ha convertido en una palabra de uso común, por lo que las Academias de la Lengua la han incorporado al diccionario. Se admiten dos formas de escribirlo: con doble eme, tal como en árabe, y también con la grafía simplificada 'humus'.
+97. Annesia
+Correcto:  No
+Explicación:  La grafía correcta es 'amnesia'. La forma que aparecía en el examen refleja una pronunciación relajada, comodona (y, por tanto, bastante extendida). Tú vas a pronunciar bien pronunciadas primero la eme y luego la ene. Así no hay peligro de que se te olvide después cómo se escribe esta palabra.
+98. Sha
+Correcto:  Sí
+Explicación:  El sah era el antiguo rey de Persia. La única grafía que se admite en español es la que acabo de emplear.
+99. Espureo
+Correcto:  No
+Explicación:  Algo espurio es algo que es falso. No es una palabra muy usada. Mucha gente la convierte en 'espúreo' cuando les da por hacerse los finos. La forma que aparecía en el examen era un disparate aún mayor.
+100. Acerbo
+Correcto:  Sí
+Explicación:  Te hallas aquí ante un adjetivo culto. Acerbo, -a es lo que resulta áspero al paladar. Además existe el sustantivo acervo, que se refiere a los valores y tradiciones de una comunidad, por ejemplo: El turrón pertenece al acervo gastronómico de mi país.
+101. Licra
+Correcto:  Sí
+Explicación:  Esta es ni más ni menos que la castellanización de la marca comercial Lycra, convertida ya en nombre común. El Diccionario de la lengua española también recoge la variante 'lycra', pero en este caso es obligatoria la cursiva porque se la trata como un extranjerismo crudo.
+            `;
+
+            // Global variables for the test state
+            let allQuestions = [];
+            let shuffledQuestions = [];
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let userAnswers = {}; // Stores user's selected answer for each question: { 'shuffledIndex': 'selectedOptionText' }
+
+            // DOM elements
+            const questionCounterElem = document.getElementById('question-counter');
+            const currentWordElem = document.getElementById('current-word');
+            const optionsContainer = document.getElementById('options-container');
+            const feedbackMessageElem = document.getElementById('feedback-message');
+            const explanationMessageElem = document.getElementById('explanation-message');
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            const testArea = document.getElementById('test-area');
+            const resultsArea = document.getElementById('results-area');
+            const scoreDisplay = document.getElementById('score-display');
+            const restartButton = document.getElementById('restart-button');
+            const optionButtons = optionsContainer.querySelectorAll('.option-button');
+
+            /**
+             * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
+             * @param {Array} array The array to shuffle.
+             */
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+                }
+            }
+
+            /**
+             * Parses the raw document content into a structured questions array.
+             * @param {string} text The raw text content of the document.
+             */
+            function parseQuestions(text) {
+                const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+                const questions = [];
+                let currentQuestion = {};
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+
+                    // Check for start of a new question (e.g., "1. Vislumbrar")
+                    const wordMatch = line.match(/^(\d+)\.\s(.+)$/);
+                    if (wordMatch) {
+                        if (currentQuestion.word) { // If a previous question was being built, push it
+                            questions.push(currentQuestion);
+                        }
+                        currentQuestion = {
+                            word: wordMatch[2].trim(),
+                            correctAnswer: null,
+                            explanation: ''
+                        };
+                        continue;
+                    }
+
+                    // Check for "Correcto: Sí/No" using startsWith and substring
+                    if (line.startsWith('Correcto:')) {
+                        const correctString = line.substring(line.indexOf(':') + 1).trim();
+                        currentQuestion.correctAnswer = (correctString === 'Sí');
+                        continue;
+                    }
+
+                    // Check for "Explicación:" and capture the rest of the line(s)
+                    const explanationMatch = line.match(/^Explicación:\s*(.*)$/);
+                    if (explanationMatch) {
+                        currentQuestion.explanation = explanationMatch[1].trim();
+                        // Continue to append subsequent lines to explanation if they don't match a new question pattern
+                        let j = i + 1;
+                        while (j < lines.length && !lines[j].match(/^(\d+)\.\s(.+)$/) && !lines[j].match(/^Correcto:/) && !lines[j].match(/^Explicación:/)) {
+                            currentQuestion.explanation += ' ' + lines[j].trim();
+                            j++;
+                        }
+                        i = j - 1; // Adjust outer loop index
+                        continue;
+                    }
+                }
+                // Push the last question if it exists
+                if (currentQuestion.word) {
+                    questions.push(currentQuestion);
+                }
+                return questions;
+            }
+
+            // Parse questions from the document content
+            allQuestions = parseQuestions(docContent);
+
+            /**
+             * Loads and displays the current question.
+             */
+            function loadQuestion() {
+                if (shuffledQuestions.length === 0) {
+                    currentWordElem.textContent = "No hay preguntas disponibles.";
+                    optionsContainer.innerHTML = '';
+                    prevButton.disabled = true;
+                    nextButton.disabled = true;
+                    feedbackMessageElem.textContent = '';
+                    explanationMessageElem.textContent = '';
+                    return;
+                }
+
+                const questionData = shuffledQuestions[currentQuestionIndex];
+                questionCounterElem.textContent = `Pregunta ${currentQuestionIndex + 1} de ${shuffledQuestions.length}`;
+                currentWordElem.textContent = questionData.word;
+                feedbackMessageElem.textContent = '';
+                explanationMessageElem.textContent = '';
+
+                // Enable all option buttons and remove feedback classes
+                optionButtons.forEach(button => {
+                    button.disabled = false;
+                    button.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // Restore previous selection if any for the current shuffled question
+                const userAnswer = userAnswers[currentQuestionIndex];
+                if (userAnswer !== undefined) {
+                    const selectedButton = optionsContainer.querySelector(`[data-option="${userAnswer}"]`);
+                    if (selectedButton) {
+                        selectedButton.classList.add('selected');
+                    }
+                    // If already checked, re-apply feedback and explanation
+                    if (userAnswers[`${currentQuestionIndex}_checked`]) {
+                        checkAnswer(userAnswer, true); // Re-apply feedback without re-checking
+                        // Disable buttons if already answered
+                        optionButtons.forEach(btn => btn.disabled = true);
+                    }
+                }
+
+                updateNavigationButtons();
+            }
+
+            /**
+             * Handles the selection of an option by the user.
+             * @param {string} selectedOption The value of the selected option ('correcta' or 'incorrecta').
+             */
+            function selectOption(selectedOption) {
+                // Disable all options once one is selected
+                optionButtons.forEach(button => {
+                    button.disabled = true;
+                    button.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const selectedButton = optionsContainer.querySelector(`[data-option="${selectedOption}"]`);
+                if (selectedButton) {
+                    selectedButton.classList.add('selected');
+                }
+                userAnswers[currentQuestionIndex] = selectedOption; // Store answer by shuffled index
+                userAnswers[`${currentQuestionIndex}_checked`] = true; // Mark question as checked immediately
+
+                // Automatically check the answer
+                checkAnswer(selectedOption);
+            }
+
+            /**
+             * Checks the user's selected answer against the correct answer.
+             * @param {string} selectedOption The user's selected option ('correcta' or 'incorrecta').
+             * @param {boolean} isReload True if called during a question reload, false otherwise.
+             */
+            function checkAnswer(selectedOption, isReload = false) {
+                const questionData = shuffledQuestions[currentQuestionIndex];
+                const isCorrect = (selectedOption === 'correcta' && questionData.correctAnswer) ||
+                                  (selectedOption === 'incorrecta' && !questionData.correctAnswer);
+
+                optionButtons.forEach(button => {
+                    button.classList.remove('selected', 'correct', 'incorrect');
+                    const buttonValueIsCorrect = button.dataset.option === 'correcta'; // Convert 'correcta'/'incorrecta' string to boolean
+                    if (buttonValueIsCorrect === questionData.correctAnswer) {
+                        button.classList.add('correct');
+                    } else if (button.dataset.option === selectedOption) {
+                        button.classList.add('incorrect');
+                    }
+                });
+
+                if (isCorrect) {
+                    feedbackMessageElem.textContent = "¡Correcto!";
+                    feedbackMessageElem.classList.remove('text-red-600');
+                    feedbackMessageElem.classList.add('text-green-600');
+                    if (!isReload && !userAnswers[`${currentQuestionIndex}_counted`]) {
+                        score++;
+                        userAnswers[`${currentQuestionIndex}_counted`] = true;
+                    }
+                } else {
+                    feedbackMessageElem.textContent = "Incorrecto.";
+                    feedbackMessageElem.classList.remove('text-green-600');
+                    feedbackMessageElem.classList.add('text-red-600');
+                    if (!isReload && userAnswers[`${currentQuestionIndex}_counted`]) {
+                        // If it was previously counted as correct and now it's incorrect (e.g., navigating back and changing answer)
+                        // this logic might need adjustment based on desired scoring behavior. For simplicity,
+                        // we assume score is only incremented once per correct answer.
+                        // If you want to decrement on incorrect re-selection, you'd add: score--;
+                        userAnswers[`${currentQuestionIndex}_counted`] = false;
+                    }
+                }
+
+                // Display explanation
+                explanationMessageElem.textContent = questionData.explanation;
+            }
+
+            /**
+             * Updates the disabled state of navigation buttons.
+             */
+            function updateNavigationButtons() {
+                prevButton.disabled = currentQuestionIndex === 0;
+                nextButton.disabled = currentQuestionIndex === shuffledQuestions.length - 1;
+            }
+
+            // Event Listeners for navigation
+            prevButton.addEventListener('click', () => {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    loadQuestion();
+                }
+            });
+
+            nextButton.addEventListener('click', () => {
+                if (currentQuestionIndex < shuffledQuestions.length - 1) {
+                    currentQuestionIndex++;
+                    loadQuestion();
+                } else {
+                    // End of test
+                    showResults();
+                }
+            });
+
+            // Event Listeners for option buttons
+            optionButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    selectOption(button.dataset.option);
+                });
+            });
+
+            /**
+             * Displays the test results.
+             */
+            function showResults() {
+                testArea.classList.add('hidden');
+                resultsArea.classList.remove('hidden');
+                scoreDisplay.textContent = `Has obtenido ${score} de ${shuffledQuestions.length} puntos.`;
+            }
+
+            /**
+             * Resets the test, shuffles questions, and loads the first one.
+             */
+            function resetTest() {
+                currentQuestionIndex = 0;
+                score = 0;
+                userAnswers = {}; // Clear all answers for the new shuffled sequence
+
+                // Create a copy of all questions and shuffle it
+                shuffledQuestions = [...allQuestions];
+                shuffleArray(shuffledQuestions);
+
+                testArea.classList.remove('hidden');
+                resultsArea.classList.add('hidden');
+                loadQuestion();
+            }
+
+            restartButton.addEventListener('click', resetTest);
+
+            // Initial load of the test when the window loads
+            window.onload = resetTest;
+        })(); // IIFE ends here
+    </script>
+</body>
+</html>
