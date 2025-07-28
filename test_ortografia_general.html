@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Ortografía: Rellenar Huecos</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); /* Degradado suave */
+            background-size: 200% 200%;
+            animation: gradientAnimation 10s ease infinite alternate;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInSlideUp 0.8s ease-out forwards;
+            position: relative;
+        }
+
+        @keyframes fadeInSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-section {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+            margin: 0;
+            font-size: 2.5rem;
+            flex-grow: 1;
+            text-align: center;
+            margin-left: 2rem;
+        }
+
+        /* Estilos actualizados para .option-input */
+        .option-input {
+            border: none;
+            border-bottom: 2px solid #94a3b8;
+            background-color: transparent;
+            padding: 0.25rem 0.5rem;
+            font-size: 1.35rem; /* Tamaño de fuente aumentado */
+            font-weight: 600; /* Texto más en negrita */
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            margin: 0 0.25rem;
+            min-width: 80px;
+            flex-grow: 1;
+            max-width: 200px;
+            color: #1f2937; /* Color de texto más oscuro (gris-900) */
+        }
+        .option-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: none;
+        }
+        .option-input.correct {
+            border-color: #4CAF50;
+            background-color: #dcfce7;
+        }
+        .option-input.incorrect {
+            border-color: #ef4444;
+            background-color: #fee2e2;
+        }
+        .option-input:disabled {
+            background-color: #f8fafc;
+            cursor: not-allowed;
+            border-bottom-color: #cbd5e1;
+        }
+
+        .navigation-button {
+            background: linear-gradient(145deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 3px 8px rgba(59, 130, 246, 0.3);
+        }
+        .navigation-button:hover {
+            background: linear-gradient(145deg, #2563eb, #1d4ed8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(59, 130, 246, 0.4);
+        }
+        .navigation-button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: translateY(0);
+        }
+
+        .action-icon-button {
+            background: linear-gradient(145deg, #f0f4f8, #d9e2ec);
+            color: #3b82f6;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: 2px solid #a78bfa;
+        }
+        .action-icon-button:hover:not(:disabled) {
+            background: linear-gradient(145deg, #d9e2ec, #cce0ff);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+            color: #2563eb;
+        }
+        .action-icon-button:disabled {
+            background-color: #e0e7eb;
+            color: #cbd5e1;
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+            transform: translateY(0);
+        }
+
+        #check-button {
+            border-color: #16a34a;
+            color: #16a34a;
+        }
+        #check-button:hover:not(:disabled) {
+            color: #15803d;
+        }
+        #check-button:disabled {
+             border-color: #86efac;
+             color: #86efac;
+        }
+
+        #hint-button {
+            border-color: #8b5cf6;
+            color: #8b5cf6;
+        }
+        #hint-button:hover:not(:disabled) {
+            color: #7c3aed;
+        }
+        #hint-button:disabled {
+            border-color: #c4b5fd;
+            color: #c4b5fd;
+        }
+
+
+        .score-display-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .score-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .score-item i {
+            font-size: 1.2rem;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e7eb;
+            border-radius: 0.5rem;
+            height: 12px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #63b3ed, #3b82f6);
+            border-radius: 0.5rem;
+            transition: width 0.5s ease-in-out;
+        }
+        .feedback-icon {
+            margin-left: 0.5rem;
+            font-size: 1.8rem;
+            vertical-align: middle;
+        }
+        .feedback-icon.correct-icon {
+            color: #4CAF50;
+        }
+        .feedback-icon.incorrect-icon {
+            color: #ef4444;
+        }
+        #question-counter {
+            color: #334155;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .in-page-info-message {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        .in-page-action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        .in-page-action-buttons .navigation-button {
+            flex-grow: 1;
+            max-width: 250px;
+        }
+
+        .combined-results-display {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            padding: 0.5rem 1rem;
+            background-color: #f8fafc;
+            border-radius: 0.75rem;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .combined-results-display .score-item {
+            margin: 0;
+        }
+
+        .overall-summary-inline {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+            color: #334155;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .overall-summary-inline span {
+            font-weight: 700;
+        }
+        .overall-summary-inline .text-green-700 {
+            color: #16a34a;
+        }
+        .overall-summary-inline .text-red-700 {
+            color: #dc2626;
+        }
+
+        .home-button-icon {
+            font-size: 1.8rem;
+            color: #3b82f6;
+            transition: color 0.2s ease-in-out;
+            z-index: 10;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        .home-button-icon:hover {
+            color: #2563eb;
+        }
+
+        .restart-icon {
+            font-size: 1.5rem;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            margin-left: 1rem;
+        }
+
+        .restart-icon:hover:not(.disabled) {
+            color: #3b82f6;
+            transform: rotate(30deg);
+        }
+
+        .restart-icon.disabled {
+            color: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        /* Texto de explicación para los iconos */
+        /* Se ha modificado para que incluya iconos y tenga el texto resumido */
+        .icon-explanation {
+            font-size: 1.1rem;
+            color: #475569;
+            margin-top: 1.5rem; /* Ajustado el margen superior */
+            margin-bottom: 1.5rem;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .icon-explanation .explanation-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem; /* Espacio entre el icono y el texto */
+            margin-bottom: 0.5rem; /* Espacio entre líneas de explicación */
+        }
+        .icon-explanation .explanation-line:last-child {
+            margin-bottom: 0; /* Eliminar margen inferior de la última línea */
+        }
+        .icon-explanation strong {
+            color: #2c3e50;
+        }
+        .icon-explanation i {
+            font-size: 1.2rem; /* Tamaño del icono */
+            flex-shrink: 0; /* Evita que el icono se encoja */
+        }
+
+
+        @media (max-width: 639px) {
+            .home-button-icon {
+                font-size: 1.5rem;
+                margin-right: 0.5rem;
+            }
+            .container {
+                padding: 1.5rem;
+            }
+            .header-section {
+                margin-bottom: 0.5rem;
+            }
+            h1 {
+                font-size: 2rem;
+                margin-left: 1.5rem;
+            }
+            .combined-results-display {
+                gap: 0.75rem;
+                padding: 0.4rem 0.8rem;
+            }
+            .overall-summary-inline {
+                font-size: 0.9rem;
+                gap: 0.5rem;
+            }
+            .restart-icon {
+                font-size: 1.2rem;
+                margin-left: 0.5rem;
+            }
+            .action-icon-button {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            .icon-explanation {
+                font-size: 0.9rem; /* Ajuste para pantallas pequeñas */
+                margin-top: 1rem; /* Ajuste para pantallas pequeñas */
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <a href="index.html" class="home-button-icon" title="Volver al listado de tests">
+                <i class="fas fa-home"></i>
+            </a>
+            <h1 class="text-3xl md:text-4xl font-extrabold leading-tight">
+                Test de Ortografía: Rellenar Huecos
+            </h1>
+        </div>
+        
+        <p class="text-md text-gray-600 mb-6">
+            Completa las oraciones con la palabra correcta. ¡Demuestra tu dominio de la ortografía!
+        </p>
+
+        <div id="test-area">
+            <p id="question-counter" class="text-sm text-gray-500 mb-4"></p>
+
+            <p id="current-question" class="text-2xl font-semibold text-gray-900 mb-6 flex flex-wrap justify-center items-center">
+                <!-- La frase con los huecos se cargará aquí con JavaScript -->
+            </p>
+
+            <!-- Nuevo div para los botones de acción (Comprobar, Pista) -->
+            <div class="flex justify-center gap-4 mb-6">
+                <button id="check-button" class="action-icon-button" title="Comprobar respuesta">
+                    <i class="fas fa-check"></i>
+                </button>
+                <button id="hint-button" class="action-icon-button" title="Obtener pista">
+                    <i class="fas fa-lightbulb"></i>
+                </button>
+            </div>
+
+            <div class="flex justify-between gap-4 mt-6">
+                <button id="prev-button" class="navigation-button">Anterior</button>
+                <button id="next-button" class="navigation-button">Siguiente</button>
+            </div>
+
+            <!-- Nueva ubicación de la explicación de los botones con iconos y texto resumido -->
+            <div class="icon-explanation">
+                <p class="explanation-line">
+                    <i class="fas fa-check" style="color: #16a34a;"></i> <strong>Comprobar:</strong> Verifica tus respuestas. Una vez hecho, no podrás modificarlas.
+                </p>
+                <p class="explanation-line">
+                    <i class="fas fa-lightbulb" style="color: #8b5cf6;"></i> <strong>Pista:</strong> Obtén una ayuda para deducir la respuesta sin revelarla por completo.
+                </p>
+            </div>
+
+            <div class="combined-results-display">
+                <div class="score-item text-green-600">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="correct-count">0</span>
+                </div>
+                <div class="score-item text-red-600">
+                    <i class="fas fa-times-circle"></i>
+                    <span id="incorrect-count">0</span>
+                </div>
+                <div id="overall-summary-inline" class="overall-summary-inline hidden">
+                    <span>Total:</span>
+                    <span class="text-green-700">Aciertos: <span id="overall-correct-display">0</span></span>
+                    <span class="text-red-700">Errores: <span id="overall-incorrect-display">0</span></span>
+                </div>
+                <i id="restart-button" class="fas fa-sync-alt restart-icon disabled" title="Reiniciar test completo"></i>
+            </div>
+
+            <div class="progress-bar-container">
+                <div id="progress-bar-fill" class="progress-bar-fill"></div>
+            </div>
+
+            <div id="dynamic-message-area">
+                <p id="dynamic-info-message" class="in-page-info-message"></p>
+                <div id="dynamic-action-buttons" class="in-page-action-buttons"></div>
+            </div>
+
+            <div id="feedback-message" class="text-lg font-bold mt-4 mb-2 flex items-center justify-center" style="min-height: 1.5em;">
+                <!-- El texto y el icono de feedback aparecerán aquí -->
+            </div>
+            <div id="explanation-message" class="text-md explanation-message mt-2 mb-4"></div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Definición directa de las preguntas para evitar errores de parsing
+            const allQuestions = [
+                {
+                    sentence: "La reunión será _BLANK_ en la sala de juntas.",
+                    answers: ["ahí"],
+                    explanation: "Adverbio de lugar."
+                },
+                {
+                    sentence: "_BLANK_ que ir a votar.",
+                    answers: ["Hay"],
+                    explanation: "Indica obligación impersonal."
+                },
+                {
+                    sentence: "¡_BLANK_! Qué frío hace _BLANK_ afuera, no _BLANK_ nadie en la calle.",
+                    answers: ["Ay", "ahí", "hay"],
+                    explanation: "Interjección - Adverbio de lugar - Forma del verbo haber."
+                },
+                {
+                    sentence: "Los _BLANK_ de dolor eran desgarradores.",
+                    answers: ["ayes"],
+                    explanation: "Lamentos o quejidos."
+                },
+                {
+                    sentence: "Se fue de _BLANK_ sin decir nada.",
+                    answers: ["ahí"],
+                    explanation: "Adverbio de lugar."
+                },
+                {
+                    sentence: "¡_BLANK_, qué susto me has dado!",
+                    answers: ["Ay"], // Cambiado de "Ah" a "Ay" según tu solicitud
+                    explanation: "Interjección de sorpresa."
+                },
+                {
+                    sentence: "_BLANK_ que ser pacientes en estos momentos.",
+                    answers: ["Hay"],
+                    explanation: "Obligación impersonal."
+                },
+                {
+                    sentence: "¡_BLANK_!, _BLANK_ _BLANK_ una araña enorme.",
+                    answers: ["Ay", "ahí", "hay"],
+                    explanation: "Combinación correcta de interjección, adverbio de lugar y verbo 'haber'."
+                }
+            ];
+
+            let shuffledQuestions = [];
+            let currentQuestionIndex = 0;
+            let correctCount = 0;
+            let incorrectCount = 0;
+            // userAnswers now stores { answers: [], hintUsed: boolean, checked: boolean, isScored: boolean }
+            let userAnswers = {}; 
+
+            const questionCounterElem = document.getElementById('question-counter');
+            const currentQuestionElem = document.getElementById('current-question');
+            const feedbackMessageElem = document.getElementById('feedback-message');
+            const explanationMessageElem = document.getElementById('explanation-message');
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            const hintButton = document.getElementById('hint-button');
+            const checkButton = document.getElementById('check-button');
+            const testArea = document.getElementById('test-area');
+            const correctCountDisplay = document.getElementById('correct-count');
+            const incorrectCountDisplay = document.getElementById('incorrect-count');
+            const progressBarFill = document.getElementById('progress-bar-fill');
+            const dynamicInfoMessage = document.getElementById('dynamic-info-message');
+            const dynamicActionButtons = document.getElementById('dynamic-action-buttons');
+            const overallSummaryInline = document.getElementById('overall-summary-inline');
+            const overallCorrectDisplay = document.getElementById('overall-correct-display');
+            const overallIncorrectDisplay = document.getElementById('overall-incorrect-display');
+            const restartButton = document.getElementById('restart-button');
+
+            /**
+             * Baraja un array in situ usando el algoritmo Fisher-Yates (Knuth).
+             * @param {Array} array El array a barajar.
+             */
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            // Mensaje de depuración para verificar el total de preguntas cargadas
+            console.log("DEBUG: allQuestions.length al inicio:", allQuestions.length); 
+
+            /**
+             * Muestra un mensaje en la página con botones dinámicos.
+             * @param {string} message El mensaje a mostrar.
+             * @param {Array<Object>} buttons Array de configuraciones de botón { text: string, action: function }.
+             */
+            function showDynamicMessage(message, buttons = []) {
+                dynamicInfoMessage.textContent = message;
+                dynamicActionButtons.innerHTML = '';
+
+                buttons.forEach(btnConfig => {
+                    const button = document.createElement('button');
+                    button.textContent = btnConfig.text;
+                    button.classList.add('navigation-button');
+                    button.onclick = btnConfig.action;
+                    dynamicActionButtons.appendChild(button);
+                });
+            }
+
+            /**
+             * Limpia cualquier mensaje y botón dinámico.
+             */
+            function clearDynamicMessage() {
+                dynamicInfoMessage.textContent = '';
+                dynamicActionButtons.innerHTML = '';
+            }
+
+            /**
+             * Muestra los resultados generales del test en línea.
+             */
+            function displayOverallResultsInline() {
+                overallSummaryInline.classList.remove('hidden');
+                overallCorrectDisplay.textContent = correctCount;
+                overallIncorrectDisplay.textContent = incorrectCount;
+            }
+
+            /**
+             * Actualiza la puntuación y la barra de progreso.
+             */
+            function updateScoreAndProgress() {
+                correctCountDisplay.textContent = correctCount;
+                incorrectCountDisplay.textContent = incorrectCount;
+
+                const totalQuestions = shuffledQuestions.length;
+                // Contar las preguntas que han sido explícitamente comprobadas O que han usado una pista
+                const answeredQuestions = Object.keys(userAnswers).filter(key => userAnswers[key].checked || userAnswers[key].hintUsed).length;
+
+                if (totalQuestions > 0) {
+                    const progressPercentage = (answeredQuestions / totalQuestions) * 100;
+                    progressBarFill.style.width = `${progressPercentage}%`;
+                } else {
+                    progressBarFill.style.width = '0%';
+                }
+
+                overallCorrectDisplay.textContent = correctCount;
+                overallIncorrectDisplay.textContent = incorrectCount;
+
+                if (correctCount > 0 || incorrectCount > 0) {
+                    restartButton.classList.remove('disabled');
+                } else {
+                    restartButton.classList.add('disabled');
+                }
+            }
+
+            /**
+             * Carga y muestra la pregunta actual.
+             */
+            function loadQuestion() {
+                console.log("DEBUG: loadQuestion - currentQuestionIndex:", currentQuestionIndex, "shuffledQuestions.length:", shuffledQuestions.length); // DEBUG LOG
+                clearDynamicMessage();
+                overallSummaryInline.classList.add('hidden');
+                restartButton.classList.add('disabled');
+                
+                // Reiniciar feedback y explicación
+                feedbackMessageElem.innerHTML = ''; 
+                explanationMessageElem.textContent = '';
+
+                const questions = shuffledQuestions;
+                if (questions.length === 0) {
+                    currentQuestionElem.textContent = "No hay preguntas disponibles.";
+                    currentQuestionElem.innerHTML = ''; // Limpiar entradas
+                    prevButton.disabled = true;
+                    nextButton.disabled = true;
+                    hintButton.disabled = true;
+                    checkButton.disabled = true; // Deshabilitar botón de comprobación si no hay preguntas
+                    updateScoreAndProgress();
+                    return;
+                }
+
+                const questionData = questions[currentQuestionIndex];
+                questionCounterElem.textContent = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+                
+                // Dividir la frase por _BLANK_ y crear spans y entradas
+                const parts = questionData.sentence.split('_BLANK_');
+                currentQuestionElem.innerHTML = ''; // Limpiar contenido previo
+
+                parts.forEach((part, index) => {
+                    if (part) {
+                        const span = document.createElement('span');
+                        span.textContent = part.trim();
+                        currentQuestionElem.appendChild(span);
+                    }
+                    if (index < parts.length - 1) { // Añadir entrada para cada hueco
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.classList.add('option-input');
+                        input.placeholder = 'Escribe aquí';
+                        input.dataset.blankIndex = index; // Almacenar índice para validación
+                        input.addEventListener('input', () => {
+                            // Limpiar feedback y explicación cuando el usuario escribe
+                            feedbackMessageElem.innerHTML = '';
+                            explanationMessageElem.textContent = '';
+                            // Eliminar clases de feedback de la entrada
+                            input.classList.remove('correct', 'incorrect');
+                        });
+                        input.addEventListener('blur', () => checkIndividualBlank(input)); // Comprobar al perder el foco
+                        currentQuestionElem.appendChild(input);
+                    }
+                });
+
+                // Restaurar respuestas y estado previos si están disponibles
+                const savedState = userAnswers[currentQuestionIndex];
+                if (savedState) {
+                    console.log("DEBUG: loadQuestion - Saved state found. hintUsed:", savedState.hintUsed, "checked:", savedState.checked, "isScored:", savedState.isScored); // NEW DEBUG LOG
+                    const inputs = currentQuestionElem.querySelectorAll('.option-input');
+                    inputs.forEach((input, idx) => {
+                        input.value = savedState.answers[idx] || '';
+                    });
+
+                    // Volver a aplicar el feedback si la pregunta ya fue comprobada
+                    if (savedState.checked) {
+                        // Re-evaluar para aplicar las clases correctas/incorrectas basadas en las respuestas guardadas
+                        const questionWasCorrect = savedState.answers.every((ans, idx) => ans.toLowerCase() === questionData.answers[idx].toLowerCase());
+                        const hintWasUsed = savedState.hintUsed;
+
+                        feedbackMessageElem.innerHTML = '';
+                        const feedbackText = document.createElement('span');
+                        const feedbackIcon = document.createElement('i');
+                        feedbackIcon.classList.add('feedback-icon');
+
+                        if (questionWasCorrect) { // If correct, regardless of hint
+                            feedbackText.textContent = "¡Correcto!";
+                            if (hintWasUsed) {
+                                feedbackText.textContent = "¡Correcto (con ayuda)!"; // Specific message for correct with hint
+                            }
+                            feedbackText.classList.remove('text-red-600');
+                            feedbackText.classList.add('text-green-600');
+                            feedbackIcon.classList.add('fas', 'fa-check-circle', 'correct-icon');
+                        } else {
+                            feedbackText.textContent = "Incorrecto.";
+                            feedbackText.classList.remove('text-green-600');
+                            feedbackText.classList.add('text-red-600');
+                            feedbackIcon.classList.add('fas', 'fa-times-circle', 'incorrect-icon');
+                        }
+                        feedbackMessageElem.appendChild(feedbackText);
+                        feedbackMessageElem.appendChild(feedbackIcon);
+                        explanationMessageElem.textContent = questionData.explanation; // Mostrar explicación completa aquí
+
+                        inputs.forEach(input => input.disabled = true); // Deshabilitar entradas si ya fue comprobada
+                        hintButton.disabled = true;
+                        checkButton.disabled = true;
+                    } else if (savedState.hintUsed) {
+                        // Si solo se usó la pista, mostrar la explicación modificada por la pista y deshabilitar el botón de pista
+                        let hintText = questionData.explanation;
+                        questionData.answers.forEach(answer => {
+                            const escapedAnswer = answer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                            const regex = new RegExp(`\\b${escapedAnswer}\\b`, 'gi');
+                            hintText = hintText.replace(regex, '(la palabra correcta)');
+                        });
+                        explanationMessageElem.textContent = "Pista: " + hintText; // Mostrar explicación modificada por la pista
+                        hintButton.disabled = true;
+                        checkButton.disabled = false; // Mantener el botón de comprobación habilitado
+                    } else {
+                        // Si no se ha comprobado ni se ha usado la pista, habilitar todos los botones de acción
+                        hintButton.disabled = false;
+                        checkButton.disabled = false;
+                    }
+
+                } else {
+                    // No hay estado guardado, así que habilitar todos los botones de acción
+                    hintButton.disabled = false;
+                    checkButton.disabled = false;
+                }
+
+                updateNavigationButtons(); // Actualiza el estado del botón 'Anterior'
+                updateScoreAndProgress();
+                
+                if (currentQuestionIndex === shuffledQuestions.length - 1) {
+                    nextButton.textContent = "Finalizar Test";
+                } else {
+                    nextButton.textContent = "Siguiente";
+                }
+                console.log("DEBUG: loadQuestion - Botones: Hint disabled:", hintButton.disabled, "Check disabled:", checkButton.disabled); // DEBUG LOG
+            }
+
+            /**
+             * Comprueba la entrada del usuario para un solo hueco.
+             * @param {HTMLElement} inputElement El elemento de entrada a comprobar.
+             */
+            function checkIndividualBlank(inputElement) {
+                const blankIndex = parseInt(inputElement.dataset.blankIndex);
+                const questionData = shuffledQuestions[currentQuestionIndex];
+                const userAnswer = inputElement.value.trim().toLowerCase();
+                const correctAnswer = questionData.answers[blankIndex].toLowerCase();
+
+                // Registro en consola para depuración
+                console.log(`DEBUG: Individual Check - Blank ${blankIndex}: User input = '${userAnswer}', Correct answer = '${correctAnswer}', Match: ${userAnswer === correctAnswer}`);
+
+                if (userAnswer === correctAnswer) {
+                    inputElement.classList.add('correct');
+                    inputElement.classList.remove('incorrect');
+                } else if (userAnswer !== '') { // Solo marcar incorrecto si hay entrada
+                    inputElement.classList.add('incorrect');
+                    inputElement.classList.remove('correct');
+                } else {
+                    inputElement.classList.remove('correct', 'incorrect'); // Limpiar si está en blanco
+                }
+            }
+
+            /**
+             * Comprueba todos los huecos en la pregunta actual y proporciona feedback general.
+             * Esta función también actualiza la puntuación.
+             * @param {boolean} isReload Verdadero si se llama durante una recarga, falso en caso contrario.
+             * @param {boolean} hintWasUsedForThisQuestion Verdadero si se usó la pista para esta pregunta.
+             */
+            function checkAllBlanks(isReload = false, hintWasUsedForThisQuestion = false) {
+                const questionData = shuffledQuestions[currentQuestionIndex];
+                const inputs = currentQuestionElem.querySelectorAll('.option-input');
+                let allInputsCorrect = true; // Renamed to avoid confusion with the parameter
+                const currentInputs = [];
+
+                inputs.forEach((input, index) => {
+                    const userAnswer = input.value.trim().toLowerCase();
+                    const correctAnswer = questionData.answers[index].toLowerCase();
+                    currentInputs.push(input.value.trim());
+
+                    console.log(`DEBUG: Final Check - Blank ${index}: User input = '${userAnswer}', Correct answer = '${correctAnswer}', Match: ${userAnswer === correctAnswer}`);
+
+                    if (userAnswer === correctAnswer) {
+                        input.classList.add('correct');
+                        input.classList.remove('incorrect');
+                    } else {
+                        input.classList.add('incorrect');
+                        input.classList.remove('correct');
+                        allInputsCorrect = false; // Set to false if any input is incorrect
+                    }
+                });
+
+                // Initialize userAnswers[currentQuestionIndex] if it doesn't exist
+                if (!userAnswers[currentQuestionIndex]) {
+                    userAnswers[currentQuestionIndex] = {};
+                }
+                // Update properties
+                userAnswers[currentQuestionIndex].answers = currentInputs;
+                userAnswers[currentQuestionIndex].hintUsed = hintWasUsedForThisQuestion;
+                userAnswers[currentQuestionIndex].checked = true; // Mark this question as explicitly checked
+
+                console.log("DEBUG: checkAllBlanks - After input check, allInputsCorrect is:", allInputsCorrect); // NEW LOG HERE
+                console.log("DEBUG: checkAllBlanks - Scoring logic. allInputsCorrect:", allInputsCorrect, "hintWasUsedForThisQuestion:", hintWasUsedForThisQuestion);
+
+                if (!isReload) {
+                    // Only update score if it hasn't been scored for this question already in this session
+                    if (!userAnswers[currentQuestionIndex].isScored) { // New flag for scoring
+                        if (allInputsCorrect) { // If it's correct, regardless of hint
+                            correctCount++;
+                            console.log("DEBUG: checkAllBlanks - Correcto. correctCount:", correctCount, "Reason: All correct (hint status:", hintWasUsedForThisQuestion, ").");
+                        } else { // If it's incorrect
+                            incorrectCount++;
+                            console.log("DEBUG: checkAllBlanks - Incorrecto. incorrectCount:", incorrectCount, "Reason: Not all inputs correct (hint status:", hintWasUsedForThisQuestion, ").");
+                        }
+                        userAnswers[currentQuestionIndex].isScored = true; // Mark as scored
+                        console.log("DEBUG: checkAllBlanks - Question marked as scored.");
+                    } else {
+                        console.log("DEBUG: checkAllBlanks - Question already scored, skipping score update.");
+                    }
+                }
+
+
+                feedbackMessageElem.innerHTML = '';
+                const feedbackText = document.createElement('span');
+                const feedbackIcon = document.createElement('i');
+                feedbackIcon.classList.add('feedback-icon');
+
+                // The feedback message logic
+                if (allInputsCorrect) { // If the inputs are correct, regardless of hint usage
+                    feedbackText.textContent = "¡Correcto!";
+                    if (hintWasUsedForThisQuestion) {
+                        feedbackText.textContent = "¡Correcto (con ayuda)!"; // Specific message for correct with hint
+                    }
+                    feedbackText.classList.remove('text-red-600');
+                    feedbackText.classList.add('text-green-600');
+                    feedbackIcon.classList.add('fas', 'fa-check-circle', 'correct-icon');
+                } else { // If the inputs are incorrect
+                    feedbackText.textContent = "Incorrecto.";
+                    feedbackText.classList.remove('text-green-600');
+                    feedbackText.classList.add('text-red-600');
+                    feedbackIcon.classList.add('fas', 'fa-times-circle', 'incorrect-icon');
+                }
+                feedbackMessageElem.appendChild(feedbackText);
+                feedbackMessageElem.appendChild(feedbackIcon);
+
+                explanationMessageElem.textContent = questionData.explanation; // Siempre mostrar explicación completa después de comprobar
+
+                updateScoreAndProgress();
+
+                // Después de comprobar, deshabilitar entradas y botones de acción
+                inputs.forEach(input => input.disabled = true);
+                checkButton.disabled = true;
+                hintButton.disabled = true; // El botón de pista también se deshabilita una vez comprobado
+                console.log("DEBUG: checkAllBlanks - Botones después de comprobar: Hint disabled:", hintButton.disabled, "Check disabled:", checkButton.disabled); // DEBUG LOG
+            }
+
+            /**
+             * Maneja el clic del botón de pista.
+             */
+            function handleHintClick() {
+                console.log("DEBUG: handleHintClick - Pista usada para pregunta:", currentQuestionIndex); // DEBUG LOG
+                try {
+                    const questionData = shuffledQuestions[currentQuestionIndex];
+                    const inputs = currentQuestionElem.querySelectorAll('.option-input');
+                    const currentInputs = Array.from(inputs).map(input => input.value.trim()); // Capturar la entrada actual del usuario
+
+                    // Initialize userAnswers[currentQuestionIndex] if it doesn't exist
+                    if (!userAnswers[currentQuestionIndex]) {
+                        userAnswers[currentQuestionIndex] = {};
+                    }
+                    // Almacenar respuestas actuales del usuario y marcar que se usó la pista, pero AÚN NO comprobada
+                    userAnswers[currentQuestionIndex].answers = currentInputs;
+                    userAnswers[currentQuestionIndex].hintUsed = true; // This is explicitly set to true
+                    userAnswers[currentQuestionIndex].checked = false; // Aún no comprobada, solo se proporcionó la pista
+                    userAnswers[currentQuestionIndex].isScored = false; // Not scored yet
+
+                    console.log("DEBUG: handleHintClick - userAnswers after hint:", userAnswers[currentQuestionIndex]); // NEW DEBUG LOG
+
+                    hintButton.disabled = true; // Deshabilitar botón de pista después de usar
+                    checkButton.disabled = false; // Mantener botón de comprobación habilitado
+
+                    // Generar una pista menos directa a partir de la explicación
+                    let hintText = questionData.explanation;
+                    questionData.answers.forEach(answer => {
+                        // Crear una expresión regular para que coincida con la palabra completa, sin distinción de mayúsculas/minúsculas
+                        // Escapar caracteres especiales en la respuesta para seguridad de la expresión regular
+                        const escapedAnswer = answer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        const regex = new RegExp(`\\b${escapedAnswer}\\b`, 'gi');
+                        hintText = hintText.replace(regex, '(la palabra correcta)');
+                    });
+
+                    explanationMessageElem.textContent = "Pista: " + hintText; // Añadir prefijo "Pista:"
+                    feedbackMessageElem.innerHTML = ''; // Limpiar cualquier feedback previo
+
+                    // Las entradas permanecen habilitadas para que el usuario escriba
+                    inputs.forEach(input => input.disabled = false); 
+                    
+                    updateScoreAndProgress(); // Actualizar la barra de progreso basándose en las preguntas respondidas, pero no la puntuación.
+                    console.log("DEBUG: handleHintClick - Botones después de pista: Hint disabled:", hintButton.disabled, "Check disabled:", checkButton.disabled); // DEBUG LOG
+
+                } catch (error) {
+                    console.error("ERROR: Error al usar la pista:", error);
+                    showDynamicMessage("Ha ocurrido un error al mostrar la pista. Por favor, inténtalo de nuevo.");
+                }
+            }
+
+            /**
+             * Maneja el clic del botón de comprobación.
+             */
+            function handleCheckButtonClick() {
+                console.log("DEBUG: handleCheckButtonClick - Comprobando pregunta:", currentQuestionIndex); // DEBUG LOG
+                const inputs = currentQuestionElem.querySelectorAll('.option-input');
+                const allFilled = Array.from(inputs).every(input => input.value.trim() !== '');
+
+                if (!allFilled) {
+                    showDynamicMessage("Por favor, rellena todos los huecos antes de comprobar.");
+                    console.log("DEBUG: handleCheckButtonClick - No todos los huecos están rellenos."); // DEBUG LOG
+                    return;
+                }
+                // Determinar si se usó la pista para esta pregunta a partir del estado guardado
+                const hintUsedForThisQuestion = userAnswers[currentQuestionIndex]?.hintUsed || false;
+                checkAllBlanks(false, hintUsedForThisQuestion); // Comprobar y contar, no es una recarga
+            }
+
+            /**
+             * Actualiza el estado deshabilitado de los botones de navegación.
+             */
+            function updateNavigationButtons() {
+                prevButton.disabled = currentQuestionIndex === 0;
+            }
+
+            /**
+             * Maneja la lógica cuando el test se completa.
+             */
+            function handleTestCompletion() {
+                console.log("DEBUG: handleTestCompletion - Test completado."); // DEBUG LOG
+                const inputs = currentQuestionElem.querySelectorAll('.option-input');
+                inputs.forEach(input => input.disabled = true);
+                prevButton.disabled = true;
+                nextButton.disabled = true;
+                hintButton.disabled = true;
+                checkButton.disabled = true; // Deshabilitar botón de comprobación al final del test
+                nextButton.textContent = "Finalizar Test";
+
+                showDynamicMessage(
+                    `¡Enhorabuena! Has completado el test de ortografía. ¡Eres un/a campeón/a!`
+                );
+                displayOverallResultsInline();
+                restartButton.classList.remove('disabled');
+            }
+
+            /**
+             * Manejador predeterminado para el botón siguiente.
+             */
+            function handleNextButtonClick() {
+                console.log("DEBUG: handleNextButtonClick called. currentQuestionIndex (before logic):", currentQuestionIndex);
+                
+                const inputs = currentQuestionElem.querySelectorAll('.option-input');
+                const allFilled = Array.from(inputs).every(input => input.value.trim() !== '');
+
+                // Si no todos los huecos están rellenos, mostrar mensaje y no avanzar
+                if (!allFilled) {
+                    showDynamicMessage("Por favor, rellena todos los huecos antes de avanzar.");
+                    console.log("DEBUG: handleNextButtonClick - No todos los huecos están rellenos. Deteniendo avance.");
+                    return; 
+                }
+
+                // Si la pregunta actual no ha sido comprobada, la comprobamos ahora.
+                // Esto también deshabilitará los inputs y los botones de acción para esta pregunta.
+                if (!userAnswers[currentQuestionIndex] || !userAnswers[currentQuestionIndex].checked) {
+                    const hintUsedForThisQuestion = userAnswers[currentQuestionIndex]?.hintUsed || false;
+                    console.log("DEBUG: handleNextButtonClick - Auto-checking. hintUsedForThisQuestion:", hintUsedForThisQuestion);
+                    checkAllBlanks(false, hintUsedForThisQuestion); 
+                    console.log("DEBUG: handleNextButtonClick - Pregunta comprobada y puntuación actualizada.");
+                } else {
+                    console.log("DEBUG: handleNextButtonClick - Pregunta ya comprobada. Saltando re-puntuación.");
+                }
+
+                // Ahora, avanzamos a la siguiente pregunta o finalizamos el test.
+                if (currentQuestionIndex < shuffledQuestions.length - 1) {
+                    currentQuestionIndex++;
+                    clearDynamicMessage(); // Limpiar mensajes de la pregunta anterior
+                    loadQuestion(); // Cargar la siguiente pregunta
+                } else {
+                    handleTestCompletion(); // Finalizar el test
+                }
+                console.log("DEBUG: handleNextButtonClick - currentQuestionIndex (después de la lógica):", currentQuestionIndex);
+            }
+
+            /**
+             * Reinicia todo el progreso del test.
+             */
+            function restartTest() {
+                currentQuestionIndex = 0;
+                correctCount = 0;
+                incorrectCount = 0;
+                userAnswers = {}; // Limpiar todas las respuestas y el uso de la pista
+
+                shuffledQuestions = [...allQuestions]; // Crear una copia nueva
+                shuffleArray(shuffledQuestions); // Barajar la copia
+                console.log("DEBUG: restartTest - shuffledQuestions.length:", shuffledQuestions.length); // DEBUG LOG
+                
+                testArea.classList.remove('hidden');
+                overallSummaryInline.classList.add('hidden');
+                restartButton.classList.add('disabled');
+
+                nextButton.textContent = "Siguiente";
+                // nextButton.onclick = handleNextButtonClick; // Ya está asignado en el listener
+                // nextButton.disabled = false; // El botón "Siguiente" siempre estará habilitado por defecto, la lógica de validación está en handleNextButtonClick
+                hintButton.disabled = false;
+                checkButton.disabled = false; // Botón de comprobación habilitado al reiniciar
+
+                loadQuestion();
+            }
+
+            prevButton.addEventListener('click', () => {
+                console.log("DEBUG: prevButton click - currentQuestionIndex:", currentQuestionIndex); // DEBUG LOG
+                clearDynamicMessage();
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    loadQuestion();
+                }
+            });
+
+            nextButton.addEventListener('click', handleNextButtonClick);
+            hintButton.addEventListener('click', handleHintClick);
+            checkButton.addEventListener('click', handleCheckButtonClick);
+            restartButton.addEventListener('click', restartTest);
+
+            window.onload = restartTest;
+        })();
+    </script>
+</body>
+</html>
